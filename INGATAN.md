@@ -324,20 +324,77 @@ npm start
 ---
 
 ## 8. 🌐 Repository GitHub & Aturan Deployment Proxmox LXC
-* **GitHub Repository:** `https://github.com/kajurtkjsmkbp-hub/khanzanet-software`
-* **Branch Utama:** `master`
-* **Jaminan Keamanan Database (Tidak Tertimpa Saat Update Lokal):**
-  * `data/*.sqlite*` dan `public/uploads/*` strictly di-ignore di `.gitignore`.
-  * Saat developer update kode di lokal dan push ke GitHub, database server Proxmox **TIDAK AKAN PERNAH TERTEMPA** saat `git pull`.
-  * Auto-migration `upgradeSchema()` di `src/db.js` otomatis menambahkan kolom baru jika ada update skema tanpa menghapus data yang ada.
-* **Perintah Update di Proxmox LXC:**
-  ```bash
-  cd /var/www/khanzanet
-  git pull origin master
-  npm install --production
-  pm2 restart khanzanet
-  ```
+
+### A. Informasi Repository Git
+* **Remote URL:** `https://github.com/kajurtkjsmkbp-hub/khanzanet-software`
+* **Default Branch:** `master`
+* **Author / Git User:** `kajurtkjsmkbp-hub` (`kajur.tkj.smkbp@gmail.com`)
+
+### B. Mekanisme Proteksi Database SQLite & Uploads (Anti-Tertimpa)
+1. **Pemisahan Data & Kode via `.gitignore`:**
+   * File database `data/*.sqlite*` (`database.sqlite`, `-wal`, `-shm`) dan berkas `public/uploads/*` **di-ignore secara ketat**.
+   * File `.gitkeep` dipertahankan di dalam `data/` dan `public/uploads/` agar struktur folder tetap terbawa saat clone.
+   * `src/db.js` telah dilengkapi auto-create folder:
+     ```javascript
+     if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
+     if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
+     ```
+2. **Auto-Migration Tanpa Menghapus Data (`upgradeSchema`):**
+   * Setiap penambahan kolom baru di masa depan akan otomatis di-alter via `upgradeSchema()` di `src/db.js` saat server dijalankan / di-restart. Data yang sudah diinput di server Proxmox (views, rating, software baru) **100% aman dan tidak akan hilang**.
+
+### C. SOP Instalasi Awal di LXC Proxmox (Debian / Ubuntu)
+```bash
+# 1. Update sistem & instal dependensi kompilasi better-sqlite3
+apt update && apt upgrade -y
+apt install -y curl git build-essential python3
+
+# 2. Pasang Node.js LTS (v22.x)
+curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
+apt install -y nodejs
+
+# 3. Clone repository
+mkdir -p /var/www
+cd /var/www
+git clone https://github.com/kajurtkjsmkbp-hub/khanzanet-software.git khanzanet
+cd khanzanet
+
+# 4. Install dependensi
+npm install --production
+
+# 5. Salin konfigurasi environment
+cp .env.example .env
+
+# 6. Jalankan & kelola dengan PM2 agar auto-start saat booting container
+npm install -g pm2
+pm2 start server.js --name "khanzanet"
+pm2 save
+pm2 startup
+```
+
+### D. Opsi Transfer Database Awal dari PC Lokal ke Proxmox (Opsional)
+Jika ingin membawa database lokal yang sudah berisi software langsung ke server Proxmox:
+```powershell
+# Jalankan dari terminal PC lokal:
+scp "C:\Users\Komputer Vintage\Music\WEBSITE-SOFTWARE-sudah-diupload-proxmox\data\database.sqlite" root@<IP_PROXMOX_LXC>:/var/www/khanzanet/data/
+```
+
+### E. SOP Update Rutin dari Lokal ke Server Proxmox (Database Tetap Aman)
+1. **Di Komputer Lokal (Windows):**
+   ```powershell
+   git add .
+   git commit -m "Update fitur/tampilan"
+   git push origin master
+   ```
+2. **Di Server LXC Proxmox:**
+   ```bash
+   cd /var/www/khanzanet
+   git pull origin master
+   npm install --production
+   pm2 restart khanzanet
+   ```
+   *(Hasil: Kode terbaru aktif, database dan file upload lokal Proxmox tetap utuh tanpa tertimpa atau conflict)*.
 
 ---
 *Dokumen ini dibuat otomatis dan dipelihara agar seluruh memori arsitektur Khanza.NET tersimpan abadi dan konsisten.*
+
 
