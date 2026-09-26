@@ -1,0 +1,205 @@
+<%- include('../layout-header') %>
+
+<div class="space-y-6">
+
+  <!-- Header -->
+  <div>
+    <h1 class="text-xl font-black text-white">Manajemen Kategori Software</h1>
+    <p class="text-xs text-slate-400 mt-0.5">Kelola kategori software, susunan menu navigasi, warna badge, dan ikon.</p>
+  </div>
+
+  <% if (typeof success !== 'undefined' && success) { %>
+    <div class="p-4 rounded-xl bg-emerald-950/70 border border-emerald-800 text-emerald-300 text-xs font-semibold flex items-center gap-2">
+      <i class="fa-solid fa-circle-check text-base"></i>
+      <%= success %>
+    </div>
+  <% } %>
+
+  <% if (typeof error !== 'undefined' && error) { %>
+    <div class="p-4 rounded-xl bg-rose-950/70 border border-rose-800 text-rose-300 text-xs font-semibold flex items-center gap-2">
+      <i class="fa-solid fa-circle-exclamation text-base"></i>
+      <%= error %>
+    </div>
+  <% } %>
+
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+    
+    <!-- LEFT: Form Tambah Kategori Baru (4 cols) -->
+    <div class="lg:col-span-4">
+      <div class="bg-[#151f32] border border-slate-800 rounded-2xl p-5 shadow-sm space-y-4">
+        <h3 class="text-xs font-bold text-white uppercase tracking-wider pb-3 border-b border-slate-800 flex items-center gap-2">
+          <i class="fa-solid fa-folder-plus text-blue-400"></i> Tambah Kategori Baru
+        </h3>
+
+        <form action="/admin/categories" method="POST" class="space-y-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Nama Kategori *</label>
+            <input type="text" name="name" required placeholder="Contoh: 3D Animation" class="w-full bg-[#121927] border border-slate-700 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500">
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Slug URL (Opsional)</label>
+            <input type="text" name="slug" placeholder="3d-animation" class="w-full bg-[#121927] border border-slate-700 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 font-mono">
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Deskripsi Singkat</label>
+            <textarea name="description" rows="2" placeholder="Software animasi dan rendering 3D..." class="w-full bg-[#121927] border border-slate-700 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500"></textarea>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">FontAwesome Icon</label>
+              <input type="text" name="icon" value="fa-solid fa-folder" placeholder="fa-solid fa-folder" class="w-full bg-[#121927] border border-slate-700 rounded-xl px-3 py-2 text-xs text-white font-mono">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Warna Badge</label>
+              <div class="flex items-center gap-2">
+                <input type="color" name="color" value="#3b82f6" class="w-8 h-8 rounded-lg border-0 bg-transparent cursor-pointer">
+                <span class="text-xs text-slate-400 font-mono">Pilih warna</span>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Urutan Tampil (Sort Order)</label>
+            <input type="number" name="sort_order" value="0" class="w-full bg-[#121927] border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+          </div>
+
+          <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs py-2.5 px-4 rounded-xl shadow-md transition flex items-center justify-center gap-2">
+            <i class="fa-solid fa-plus"></i> Simpan Kategori
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- RIGHT: Data Table Kategori (8 cols) -->
+    <div class="lg:col-span-8">
+      <div class="bg-[#151f32] border border-slate-800 rounded-2xl overflow-hidden shadow-sm">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs text-slate-300">
+            <thead class="bg-[#0f172a] text-slate-400 uppercase text-[10px] tracking-wider border-b border-slate-800">
+              <tr>
+                <th class="py-3 px-4">Ikon</th>
+                <th class="py-3 px-4">Nama & Slug</th>
+                <th class="py-3 px-4">Jumlah Post</th>
+                <th class="py-3 px-4">Urutan</th>
+                <th class="py-3 px-4 text-right">Aksi</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-800/80">
+              <% if (categories && categories.length > 0) { %>
+                <% categories.forEach(cat => { %>
+                  <tr class="hover:bg-slate-800/40 transition">
+                    <td class="py-3 px-4">
+                      <div class="w-8 h-8 rounded-lg flex items-center justify-center text-white" style="background-color: <%= cat.color || '#3b82f6' %>">
+                        <i class="<%= cat.icon %> text-xs"></i>
+                      </div>
+                    </td>
+                    <td class="py-3 px-4">
+                      <div class="font-bold text-white"><%= cat.name %></div>
+                      <div class="text-[11px] text-slate-500 font-mono mt-0.5">/category/<%= cat.slug %></div>
+                    </td>
+                    <td class="py-3 px-4">
+                      <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-600/20 text-blue-400 border border-blue-500/30">
+                        <%= cat.post_count || 0 %> Software
+                      </span>
+                    </td>
+                    <td class="py-3 px-4 font-mono text-slate-400">
+                      <%= cat.sort_order %>
+                    </td>
+                    <td class="py-3 px-4 text-right space-x-2">
+                      <a href="/category/<%= cat.slug %>" target="_blank" class="p-1.5 text-slate-400 hover:text-white" title="Buka di Web">
+                        <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                      </a>
+                      <button 
+                        type="button" 
+                        onclick="openEditCatModal('<%= cat.id %>', '<%= cat.name %>', '<%= cat.slug %>', '<%= cat.description || '' %>', '<%= cat.icon %>', '<%= cat.color || '#3b82f6' %>', '<%= cat.sort_order %>')"
+                        class="p-1.5 text-blue-400 hover:text-blue-300" 
+                        title="Edit Kategori"
+                      >
+                        <i class="fa-solid fa-pen-to-square"></i>
+                      </button>
+                      <form action="/admin/categories/<%= cat.id %>/delete" method="POST" class="inline" onsubmit="return confirm('Hapus kategori ini? Postingan di dalamnya tidak akan terhapus, hanya kategorinya dilepas.');">
+                        <button type="submit" class="p-1.5 text-rose-400 hover:text-rose-300" title="Hapus Kategori">
+                          <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                      </form>
+                    </td>
+                  </tr>
+                <% }) %>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- Modal Edit Kategori -->
+<div id="editCatModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+  <div class="bg-[#151f32] border border-slate-800 rounded-2xl w-full max-w-md p-6 shadow-2xl">
+    <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-800">
+      <h3 class="text-sm font-bold text-white">Edit Kategori</h3>
+      <button type="button" onclick="closeEditCatModal()" class="text-slate-400 hover:text-white">
+        <i class="fa-solid fa-xmark text-lg"></i>
+      </button>
+    </div>
+
+    <form id="editCatForm" action="" method="POST" class="space-y-4">
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1">Nama Kategori *</label>
+        <input type="text" id="editCatName" name="name" required class="w-full bg-[#121927] border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1">Slug URL</label>
+        <input type="text" id="editCatSlug" name="slug" class="w-full bg-[#121927] border border-slate-700 rounded-xl px-3 py-2 text-xs text-white font-mono">
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1">Deskripsi</label>
+        <textarea id="editCatDesc" name="description" rows="2" class="w-full bg-[#121927] border border-slate-700 rounded-xl px-3 py-2 text-xs text-white"></textarea>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Icon FontAwesome</label>
+          <input type="text" id="editCatIcon" name="icon" class="w-full bg-[#121927] border border-slate-700 rounded-xl px-3 py-2 text-xs text-white font-mono">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Warna Badge</label>
+          <input type="color" id="editCatColor" name="color" class="w-8 h-8 rounded-lg border-0 bg-transparent cursor-pointer">
+        </div>
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1">Urutan (Sort Order)</label>
+        <input type="number" id="editCatOrder" name="sort_order" class="w-full bg-[#121927] border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+      </div>
+
+      <div class="flex items-center justify-end gap-2 pt-2">
+        <button type="button" onclick="closeEditCatModal()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs py-2 px-4 rounded-xl">Batal</button>
+        <button type="submit" class="bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs py-2 px-5 rounded-xl shadow-md">Simpan Perubahan</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  function openEditCatModal(id, name, slug, desc, icon, color, order) {
+    document.getElementById('editCatForm').action = '/admin/categories/' + id + '/edit';
+    document.getElementById('editCatName').value = name;
+    document.getElementById('editCatSlug').value = slug;
+    document.getElementById('editCatDesc').value = desc;
+    document.getElementById('editCatIcon').value = icon;
+    document.getElementById('editCatColor').value = color;
+    document.getElementById('editCatOrder').value = order;
+    document.getElementById('editCatModal').classList.remove('hidden');
+  }
+
+  function closeEditCatModal() {
+    document.getElementById('editCatModal').classList.add('hidden');
+  }
+</script>
+
+<%- include('../layout-footer') %>

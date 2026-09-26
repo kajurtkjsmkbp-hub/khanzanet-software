@@ -1,0 +1,123 @@
+<%- include('partials/header') %>
+<%- include('partials/navbar') %>
+
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full">
+
+  <!-- Search Header & Filters -->
+  <div class="bg-[#151f32] border border-slate-800 rounded-2xl p-6 sm:p-8 mb-8 shadow-lg">
+    <div class="max-w-2xl">
+      <h1 class="text-xl sm:text-2xl font-black text-white mb-2">
+        Hasil Pencarian: "<span class="text-blue-400"><%= queryStr %></span>"
+      </h1>
+      <p class="text-xs text-slate-400 mb-6">
+        Ditemukan <strong class="text-white"><%= totalCount %></strong> software sesuai kata kunci pencarian Anda.
+      </p>
+
+      <form action="/search" method="GET" class="flex flex-col sm:flex-row gap-3">
+        <input 
+          type="text" 
+          name="q" 
+          value="<%= queryStr %>" 
+          placeholder="Cari software..." 
+          class="flex-1 bg-[#121927] border border-slate-700 rounded-lg px-4 py-2.5 text-xs text-white focus:outline-none focus:border-blue-500"
+        >
+        <select name="cat" class="bg-[#121927] border border-slate-700 rounded-lg px-3 py-2.5 text-xs text-slate-300 focus:outline-none focus:border-blue-500">
+          <option value="">Semua Kategori</option>
+          <% if (typeof navCategories !== 'undefined') { %>
+            <% navCategories.forEach(c => { %>
+              <option value="<%= c.id %>" <%= catFilter == c.id ? 'selected' : '' %>><%= c.name %></option>
+            <% }) %>
+          <% } %>
+        </select>
+        <button type="submit" class="bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs px-6 py-2.5 rounded-lg transition shadow">
+          Filter
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+    <div class="lg:col-span-8">
+      
+      <% if (posts && posts.length > 0) { %>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-8">
+          <% posts.forEach(post => { %>
+            <article class="software-card rounded-xl overflow-hidden flex flex-col group">
+              <div class="h-44 w-full overflow-hidden relative bg-slate-950">
+                <a href="/software/<%= post.slug %>" class="block w-full h-full">
+                  <img src="<%= post.thumbnail %>" alt="<%= post.title %>" class="thumb-img w-full h-full object-cover" onerror="this.src='https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=600&auto=format&fit=crop&q=80'">
+                </a>
+                
+                <div class="absolute top-2.5 left-2.5">
+                  <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold text-white shadow-md backdrop-blur-sm" style="background-color: <%= post.category_color || '#3b82f6' %>">
+                    <%= post.category_name || 'Software' %>
+                  </span>
+                </div>
+
+                <% if (post.version) { %>
+                  <div class="absolute top-2.5 right-2.5">
+                    <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-slate-900/90 text-sky-300 border border-slate-700/80 shadow">
+                      <%= post.version %>
+                    </span>
+                  </div>
+                <% } %>
+              </div>
+
+              <div class="p-4 flex-1 flex flex-col justify-between">
+                <div>
+                  <h2 class="text-sm font-bold text-white group-hover:text-blue-400 transition-colors line-clamp-2 mb-2">
+                    <a href="/software/<%= post.slug %>">
+                      <%= post.title %>
+                    </a>
+                  </h2>
+                  <p class="text-xs text-slate-400 line-clamp-2 mb-4">
+                    <%= post.excerpt || 'Klik untuk mengunduh software versi lengkap.' %>
+                  </p>
+                </div>
+
+                <div class="pt-3 border-t border-slate-800/80">
+                  <div class="flex items-center justify-between text-[11px] text-slate-400 mb-3">
+                    <span><i class="fa-solid fa-hdd text-blue-400 mr-1"></i> <%= post.file_size || 'N/A' %></span>
+                    <span><i class="fa-solid fa-calendar text-slate-500 mr-1"></i> <%= formatDate(post.created_at) %></span>
+                  </div>
+
+                  <a href="/software/<%= post.slug %>" class="w-full bg-slate-800 hover:bg-blue-600 text-slate-200 hover:text-white text-xs font-bold py-2 px-3 rounded-lg text-center transition flex items-center justify-center gap-2 group-hover:bg-blue-600 group-hover:text-white">
+                    <i class="fa-solid fa-download text-xs"></i> Detail & Unduh
+                  </a>
+                </div>
+              </div>
+            </article>
+          <% }) %>
+        </div>
+
+        <% if (totalPages > 1) { %>
+          <div class="flex items-center justify-center space-x-2 py-4">
+            <% for(let p = 1; p <= totalPages; p++) { %>
+              <a href="/search?q=<%= encodeURIComponent(queryStr) %>&cat=<%= catFilter %>&page=<%= p %>" class="px-3.5 py-2 text-xs font-bold rounded-lg <%= p === currentPage ? 'bg-blue-600 text-white shadow-md' : 'bg-slate-800 text-slate-300 hover:bg-slate-700' %> transition">
+                <%= p %>
+              </a>
+            <% } %>
+          </div>
+        <% } %>
+
+      <% } else { %>
+        <div class="bg-slate-900 border border-slate-800 rounded-xl p-12 text-center">
+          <i class="fa-solid fa-magnifying-glass text-4xl text-slate-600 mb-3"></i>
+          <h3 class="text-base font-bold text-white mb-1">Software Tidak Ditemukan</h3>
+          <p class="text-xs text-slate-400 mb-4">Coba cari dengan kata kunci lain atau kirimkan permintaan software ke admin.</p>
+          <a href="/request" class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold py-2 px-4 rounded-lg transition">
+            <i class="fa-solid fa-paper-plane"></i> Request Software Sekarang
+          </a>
+        </div>
+      <% } %>
+
+    </div>
+
+    <div class="lg:col-span-4">
+      <%- include('partials/sidebar') %>
+    </div>
+  </div>
+
+</main>
+
+<%- include('partials/footer') %>

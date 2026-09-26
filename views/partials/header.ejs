@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= typeof title !== 'undefined' ? `${title} - ${settings.site_name || 'Khanza.NET'}` : `${settings.site_name || 'Khanza.NET'} - Download Software & Game PC Repack` %></title>
+  <meta name="description" content="<%= (typeof post !== 'undefined' && post.excerpt) ? post.excerpt : (settings.site_description || 'Portal download software Windows, Mac, game PC repack full version gratis.') %>">
+  
+  <!-- Open Graph / Facebook / WhatsApp Preview -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="<%= settings.site_name || 'Khanza.NET' %>">
+  <meta property="og:title" content="<%= typeof title !== 'undefined' ? `${title}` : `${settings.site_name || 'Khanza.NET'}` %>">
+  <meta property="og:description" content="<%= (typeof post !== 'undefined' && post.excerpt) ? post.excerpt : (settings.site_description || 'Portal download software Windows, Mac, game PC repack full version gratis.') %>">
+  <meta property="og:image" content="<%= (typeof post !== 'undefined' && post.thumbnail) ? post.thumbnail : 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&auto=format&fit=crop&q=80' %>">
+  
+  <!-- Twitter Cards -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="<%= typeof title !== 'undefined' ? `${title}` : `${settings.site_name || 'Khanza.NET'}` %>">
+  <meta name="twitter:description" content="<%= (typeof post !== 'undefined' && post.excerpt) ? post.excerpt : (settings.site_description || 'Portal download software Windows, Mac, game PC repack full version gratis.') %>">
+  <meta name="twitter:image" content="<%= (typeof post !== 'undefined' && post.thumbnail) ? post.thumbnail : 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&auto=format&fit=crop&q=80' %>">
+  
+  <!-- Google Fonts: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Font Awesome 6 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eff6ff',
+              100: '#dbeafe',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+              800: '#1e40af',
+              900: '#1e3a8a',
+            },
+            dark: {
+              bg: '#0b1120',
+              card: '#151f32',
+              cardAlt: '#1e293b',
+              border: '#1e2d48',
+              borderLight: '#334155',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  
+  <!-- RSS 2.0 Feed Link -->
+  <link rel="alternate" type="application/rss+xml" title="<%= settings.site_name || 'Khanza.NET' %> RSS Feed" href="/rss.xml">
+
+  <!-- Theme Mode Detection Script (Prevents flash of wrong theme) -->
+  <script>
+    if (localStorage.theme === 'light') {
+      document.documentElement.classList.remove('dark');
+    } else {
+      document.documentElement.classList.add('dark');
+    }
+  </script>
+  
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="bg-slate-100 text-slate-800 dark:bg-[#0b1120] dark:text-slate-100 min-h-screen flex flex-col antialiased selection:bg-blue-600 selection:text-white transition-colors duration-200">

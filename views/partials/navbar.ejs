@@ -1,0 +1,171 @@
+<!-- Top Announcement Bar -->
+<% if (settings.announcement) { %>
+<div class="bg-gradient-to-r from-blue-900 via-indigo-900 to-blue-950 border-b border-blue-800/40 text-xs py-2 px-4 text-center text-blue-200">
+  <div class="max-w-7xl mx-auto flex items-center justify-between">
+    <div class="flex-1 text-center font-medium">
+      <i class="fa-solid fa-bullhorn text-yellow-400 mr-2 animate-pulse"></i>
+      <%- settings.announcement %>
+    </div>
+    <div class="hidden md:flex items-center gap-4 text-xs font-semibold">
+      <% if (settings.telegram_url) { %>
+        <a href="<%= settings.telegram_url %>" target="_blank" class="text-sky-300 hover:text-white transition flex items-center gap-1">
+          <i class="fa-brands fa-telegram"></i> Telegram
+        </a>
+      <% } %>
+      <% if (settings.discord_url) { %>
+        <a href="<%= settings.discord_url %>" target="_blank" class="text-indigo-300 hover:text-white transition flex items-center gap-1">
+          <i class="fa-brands fa-discord"></i> Discord
+        </a>
+      <% } %>
+    </div>
+  </div>
+</div>
+<% } %>
+
+<!-- Main Navigation Bar -->
+<header class="sticky top-0 z-50 bg-[#0f172a]/95 backdrop-blur-md border-b border-slate-800 shadow-xl">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between h-16 gap-4">
+      
+      <!-- Brand Logo -->
+      <a href="/" class="flex items-center gap-3 shrink-0 group">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center text-white shadow-lg shadow-blue-500/25 group-hover:scale-105 transition-transform">
+          <i class="fa-solid fa-cube text-xl"></i>
+        </div>
+        <div class="flex flex-col">
+          <span class="text-xl font-black tracking-wider text-white flex items-center gap-1">
+            <%= (settings.site_name || 'Khanza.NET').split(' ')[0] %>
+            <span class="text-blue-500 text-sm font-bold bg-blue-500/10 px-1.5 py-0.5 rounded border border-blue-500/20">PRO</span>
+          </span>
+          <span class="text-[10px] text-slate-400 font-medium tracking-wide -mt-1 hidden sm:block">SOFTWARE & REPACK</span>
+        </div>
+      </a>
+
+      <!-- Search Bar with Live Suggestion -->
+      <div class="flex-1 max-w-xl relative">
+        <form action="/search" method="GET" class="relative">
+          <div class="relative flex items-center">
+            <span class="absolute left-3.5 text-slate-400">
+              <i class="fa-solid fa-magnifying-glass text-sm"></i>
+            </span>
+            <input 
+              type="text" 
+              name="q" 
+              id="navSearchInput"
+              autocomplete="off"
+              value="<%= typeof queryStr !== 'undefined' ? queryStr : '' %>"
+              placeholder="Cari software, game PC, tools... (Tekan '/' untuk cari)" 
+              class="w-full bg-[#151f32] text-sm text-white placeholder-slate-400 rounded-full pl-10 pr-20 py-2 border border-slate-700 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition shadow-inner"
+            >
+            <div class="absolute right-2 flex items-center gap-1">
+              <span class="hidden sm:inline-block px-1.5 py-0.5 text-[10px] font-mono text-slate-400 bg-slate-800 rounded border border-slate-700">/</span>
+              <button type="submit" class="bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold px-3 py-1 rounded-full transition">
+                Cari
+              </button>
+            </div>
+          </div>
+        </form>
+        <!-- Dropdown Live Search Results -->
+        <div id="navSearchResults" class="search-results-dropdown hidden"></div>
+      </div>
+
+      <!-- Quick Action Buttons -->
+      <div class="hidden lg:flex items-center gap-1.5">
+        <a href="/bookmarks" class="relative text-xs font-semibold text-slate-300 hover:text-white px-2.5 py-2 rounded-lg hover:bg-slate-800 transition flex items-center gap-1.5" title="Koleksi Favorit Saya">
+          <i class="fa-solid fa-heart text-rose-500"></i>
+          <span class="hidden xl:inline">Favorit</span>
+          <span id="navBookmarkCount" class="bg-rose-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center leading-none hidden">0</span>
+        </a>
+
+        <a href="/request" class="text-xs font-semibold text-slate-300 hover:text-white px-3 py-2 rounded-lg hover:bg-slate-800 transition flex items-center gap-1.5">
+          <i class="fa-solid fa-paper-plane text-yellow-400"></i> Request
+        </a>
+
+        <a href="/how-to-download" class="text-xs font-semibold text-slate-300 hover:text-white px-3 py-2 rounded-lg hover:bg-slate-800 transition flex items-center gap-1.5">
+          <i class="fa-solid fa-circle-question text-emerald-400"></i> Cara Download
+        </a>
+
+        <!-- RSS Feed -->
+        <a href="/rss.xml" target="_blank" class="text-slate-400 hover:text-orange-400 p-2 rounded-lg hover:bg-slate-800 transition" title="RSS 2.0 Feed (Telegram & Discord)">
+          <i class="fa-solid fa-rss text-sm"></i>
+        </a>
+
+        <!-- Dark / Light Mode Switcher Button -->
+        <button type="button" onclick="toggleTheme()" class="text-slate-300 hover:text-white p-2 rounded-lg hover:bg-slate-800 transition" title="Ganti Mode Gelap / Terang">
+          <i class="fa-solid fa-sun text-amber-400 text-sm hidden" id="themeSunIcon"></i>
+          <i class="fa-solid fa-moon text-sky-400 text-sm inline-block" id="themeMoonIcon"></i>
+        </button>
+
+        <% if (typeof currentUser !== 'undefined' && currentUser) { %>
+          <a href="/admin" class="text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-500 px-3.5 py-2 rounded-lg shadow-md transition flex items-center gap-1.5 ml-1">
+            <i class="fa-solid fa-gauge-high"></i> CMS
+          </a>
+        <% } else { %>
+          <a href="/admin/login" class="text-xs font-semibold text-slate-400 hover:text-white px-2.5 py-2 rounded-lg hover:bg-slate-800 transition flex items-center gap-1.5" title="Login Admin CMS">
+            <i class="fa-solid fa-lock text-xs"></i> Admin
+          </a>
+        <% } %>
+      </div>
+
+      <!-- Mobile Hamburger & Actions -->
+      <div class="flex items-center gap-1 lg:hidden">
+        <button type="button" onclick="toggleTheme()" class="text-slate-300 hover:text-white p-2 rounded-lg hover:bg-slate-800 transition" title="Mode Tema">
+          <i class="fa-solid fa-circle-half-stroke text-amber-400 text-sm"></i>
+        </button>
+        <button id="mobileMenuBtn" class="text-slate-400 hover:text-white p-2 rounded-lg hover:bg-slate-800 focus:outline-none">
+          <i class="fa-solid fa-bars text-xl"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Category Nav Bar (Horizontal Scroll) -->
+  <nav class="bg-[#121927] border-t border-slate-800/80 overflow-x-auto no-scrollbar">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center space-x-1 py-1.5">
+      <a href="/" class="text-xs font-medium whitespace-nowrap px-3 py-1.5 rounded-md <%= (typeof currentPath !== 'undefined' && currentPath === '/') ? 'bg-blue-600 text-white font-bold' : 'text-slate-300 hover:text-white hover:bg-slate-800' %> transition flex items-center gap-1.5">
+        <i class="fa-solid fa-house text-xs"></i> Semua
+      </a>
+      
+      <% if (typeof navCategories !== 'undefined') { %>
+        <% navCategories.forEach(cat => { %>
+          <a href="/category/<%= cat.slug %>" class="text-xs font-medium whitespace-nowrap px-3 py-1.5 rounded-md <%= (typeof currentPath !== 'undefined' && currentPath === '/category/' + cat.slug) ? 'bg-blue-600 text-white font-bold' : 'text-slate-300 hover:text-white hover:bg-slate-800' %> transition flex items-center gap-1.5">
+            <i class="<%= cat.icon %> text-xs" style="color: <%= cat.color || '#3b82f6' %>"></i>
+            <span><%= cat.name %></span>
+          </a>
+        <% }) %>
+      <% } %>
+    </div>
+  </nav>
+
+  <!-- Mobile Dropdown Menu -->
+  <div id="mobileMenu" class="hidden lg:hidden bg-slate-900 border-b border-slate-800 px-4 py-3 space-y-2">
+    <a href="/" class="block text-sm font-medium text-slate-200 hover:text-white py-1">Beranda</a>
+    <a href="/request" class="block text-sm font-medium text-yellow-400 hover:text-yellow-300 py-1 flex items-center gap-2">
+      <i class="fa-solid fa-paper-plane"></i> Request Software
+    </a>
+    <a href="/how-to-download" class="block text-sm font-medium text-emerald-400 hover:text-emerald-300 py-1 flex items-center gap-2">
+      <i class="fa-solid fa-circle-question"></i> Cara Download
+    </a>
+    <a href="/p/dmca-disclaimer" class="block text-sm font-medium text-slate-300 hover:text-white py-1">DMCA & Disclaimer</a>
+    <div class="pt-2 border-t border-slate-800 flex items-center justify-between">
+      <% if (typeof currentUser !== 'undefined' && currentUser) { %>
+        <a href="/admin" class="text-xs font-bold text-white bg-blue-600 px-3 py-1.5 rounded">CMS Admin Panel</a>
+        <a href="/admin/logout" class="text-xs text-rose-400">Logout</a>
+      <% } else { %>
+        <a href="/admin/login" class="text-xs font-medium text-slate-400 hover:text-white">Login Admin CMS</a>
+      <% } %>
+    </div>
+  </div>
+</header>
+
+<!-- Header Advertisement / Sponsor Banner -->
+<% if (typeof settings !== 'undefined' && settings.ad_header && settings.ad_header.trim()) { %>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
+    <div class="bg-[#151f32]/80 border border-slate-800 rounded-xl p-3 text-center overflow-hidden shadow-sm">
+      <div class="text-[9px] text-slate-500 uppercase tracking-widest font-semibold mb-1">Iklan Sponsor</div>
+      <div class="flex justify-center items-center">
+        <%- settings.ad_header %>
+      </div>
+    </div>
+  </div>
+<% } %>

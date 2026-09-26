@@ -1,0 +1,108 @@
+<%- include('../layout-header') %>
+
+<div class="space-y-6">
+
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div>
+      <h1 class="text-xl font-black text-white flex items-center gap-2.5">
+        <i class="fa-solid fa-triangle-exclamation text-rose-500"></i> Laporan Link Rusak / Mati
+      </h1>
+      <p class="text-xs text-slate-400 mt-0.5">Daftar laporan link download bermasalah yang dikirim oleh pengunjung.</p>
+    </div>
+    <div class="flex items-center gap-2">
+      <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-rose-500/10 text-rose-400 border border-rose-500/20">
+        <i class="fa-solid fa-clock"></i> <%= pendingCount %> Perlu Diperbaiki
+      </span>
+    </div>
+  </div>
+
+  <% if (typeof success !== 'undefined' && success) { %>
+    <div class="p-4 rounded-xl bg-emerald-950/70 border border-emerald-800 text-emerald-300 text-xs font-semibold flex items-center gap-2">
+      <i class="fa-solid fa-circle-check text-base"></i>
+      <%= success %>
+    </div>
+  <% } %>
+
+  <div class="bg-[#151f32] border border-slate-800 rounded-2xl overflow-hidden shadow-sm">
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-xs text-slate-300">
+        <thead class="bg-[#0f172a] text-slate-400 uppercase text-[10px] tracking-wider border-b border-slate-800">
+          <tr>
+            <th class="py-3.5 px-4">Software & Server</th>
+            <th class="py-3.5 px-4">Pelapor</th>
+            <th class="py-3.5 px-4">Masalah yang Dilaporkan</th>
+            <th class="py-3.5 px-4">Status Laporan</th>
+            <th class="py-3.5 px-4">Waktu Lapor</th>
+            <th class="py-3.5 px-4 text-right">Aksi</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-800/80">
+          <% if (reports && reports.length > 0) { %>
+            <% reports.forEach(r => { %>
+              <tr class="hover:bg-slate-800/40 transition">
+                <td class="py-3.5 px-4">
+                  <div class="font-bold text-white flex items-center gap-1.5">
+                    <% if (r.post_title) { %>
+                      <a href="/software/<%= r.post_slug %>" target="_blank" class="hover:text-blue-400 transition underline underline-offset-2">
+                        <%= r.post_title %>
+                      </a>
+                    <% } else { %>
+                      <span class="text-slate-500 italic">Software Terhapus</span>
+                    <% } %>
+                  </div>
+                  <div class="text-[11px] text-slate-400 mt-1 flex items-center gap-2">
+                    <span class="px-2 py-0.5 rounded bg-slate-800 text-sky-400 font-mono font-semibold">
+                      <%= r.server_name || 'Server Download' %>
+                    </span>
+                    <% if (r.post_id) { %>
+                      <a href="/admin/posts/<%= r.post_id %>/edit" class="text-blue-400 hover:text-blue-300 text-[10px] font-semibold flex items-center gap-1">
+                        <i class="fa-solid fa-pen-to-square"></i> Edit Post
+                      </a>
+                    <% } %>
+                  </div>
+                </td>
+                <td class="py-3.5 px-4">
+                  <div class="font-semibold text-slate-200"><%= r.reporter_name || 'Pengunjung' %></div>
+                </td>
+                <td class="py-3.5 px-4">
+                  <span class="inline-block px-2.5 py-1 rounded-lg text-[11px] font-bold <%= r.reason && r.reason.includes('Mati') ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30' : 'bg-amber-500/20 text-amber-300 border border-amber-500/30' %>">
+                    <%= r.reason || 'Link Rusak' %>
+                  </span>
+                </td>
+                <td class="py-3.5 px-4">
+                  <form action="/admin/broken-links/<%= r.id %>/status" method="POST" class="inline-flex items-center gap-1.5">
+                    <select name="status" onchange="this.form.submit()" class="bg-[#121927] border border-slate-700 rounded-lg px-2.5 py-1 text-[11px] font-semibold text-slate-200 focus:outline-none focus:border-blue-500">
+                      <option value="pending" <%= r.status === 'pending' ? 'selected' : '' %>>Menunggu Perbaikan</option>
+                      <option value="resolved" <%= r.status === 'resolved' ? 'selected' : '' %>>Sudah Diperbaiki</option>
+                      <option value="rejected" <%= r.status === 'rejected' ? 'selected' : '' %>>Abaikan / Normal</option>
+                    </select>
+                  </form>
+                </td>
+                <td class="py-3.5 px-4 text-slate-500 text-[11px]">
+                  <%= formatDate(r.created_at) %>
+                </td>
+                <td class="py-3.5 px-4 text-right">
+                  <form action="/admin/broken-links/<%= r.id %>/delete" method="POST" class="inline" onsubmit="return confirm('Hapus laporan ini?');">
+                    <button type="submit" class="p-1.5 text-rose-400 hover:text-rose-300 transition" title="Hapus Laporan">
+                      <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                  </form>
+                </td>
+              </tr>
+            <% }) %>
+          <% } else { %>
+            <tr>
+              <td colspan="6" class="py-8 px-4 text-center text-slate-400 text-xs">
+                <i class="fa-solid fa-circle-check text-2xl text-emerald-500 mb-2 block"></i>
+                Tidak ada laporan link rusak. Semua link berfungsi dengan baik!
+              </td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<%- include('../layout-footer') %>

@@ -1,0 +1,126 @@
+<%- include('partials/header') %>
+<%- include('partials/navbar') %>
+
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full">
+
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+    
+    <div class="lg:col-span-8">
+      
+      <div class="bg-[#151f32] border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-xl mb-8">
+        
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-12 h-12 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/40 flex items-center justify-center text-xl font-bold">
+            <i class="fa-solid fa-paper-plane"></i>
+          </div>
+          <div>
+            <h1 class="text-xl sm:text-2xl font-black text-white">
+              Request Software & Game PC
+            </h1>
+            <p class="text-xs text-slate-400 mt-0.5">
+              Software atau game yang Anda cari belum ada di situs kami? Kirimkan permintaan di bawah ini!
+            </p>
+          </div>
+        </div>
+
+        <% if (typeof success !== 'undefined' && success) { %>
+          <div class="p-4 mb-6 rounded-xl bg-emerald-950/70 border border-emerald-800 text-emerald-300 text-xs font-semibold flex items-center gap-2">
+            <i class="fa-solid fa-circle-check text-base"></i>
+            <%= success %>
+          </div>
+        <% } %>
+
+        <form action="/request" method="POST" class="space-y-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Nama Anda *</label>
+              <input type="text" name="name" required placeholder="Contoh: Rian Pratama" class="w-full bg-[#121927] border border-slate-700 rounded-lg px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Email Anda (Opsional)</label>
+              <input type="email" name="email" placeholder="rian@gmail.com" class="w-full bg-[#121927] border border-slate-700 rounded-lg px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500">
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Nama Software / Game PC *</label>
+              <input type="text" name="software_name" required placeholder="Contoh: Autodesk AutoCAD 2025" class="w-full bg-[#121927] border border-slate-700 rounded-lg px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Versi yang Dibutuhkan</label>
+              <input type="text" name="version_needed" placeholder="Contoh: Versi Terbaru / v2025" class="w-full bg-[#121927] border border-slate-700 rounded-lg px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500">
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Catatan Tambahan (Opsional)</label>
+            <textarea name="notes" rows="3" placeholder="Informasi seperti arsitektur x64, sistem operasi, atau detail plugin yang diinginkan..." class="w-full bg-[#121927] border border-slate-700 rounded-lg px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"></textarea>
+          </div>
+
+          <div class="pt-2">
+            <button type="submit" class="bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs py-2.5 px-6 rounded-lg transition shadow-md flex items-center gap-2">
+              <i class="fa-solid fa-paper-plane"></i> Kirim Permintaan
+            </button>
+          </div>
+        </form>
+
+      </div>
+
+      <!-- Recent Requests Table -->
+      <div class="bg-[#151f32] border border-slate-800 rounded-2xl p-6 shadow-xl">
+        <h3 class="text-sm font-bold text-white uppercase tracking-wider mb-4 flex items-center gap-2">
+          <i class="fa-solid fa-clock-rotate-left text-blue-400"></i> Daftar Permintaan Terakhir
+        </h3>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs text-slate-300">
+            <thead class="bg-[#121927] text-slate-400 uppercase text-[10px]">
+              <tr>
+                <th class="py-2.5 px-3">Nama Software</th>
+                <th class="py-2.5 px-3">Versi</th>
+                <th class="py-2.5 px-3">Oleh</th>
+                <th class="py-2.5 px-3">Status</th>
+                <th class="py-2.5 px-3">Tanggal</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-800">
+              <% if (recentRequests && recentRequests.length > 0) { %>
+                <% recentRequests.forEach(reqItem => { %>
+                  <tr class="hover:bg-slate-800/40">
+                    <td class="py-2.5 px-3 font-semibold text-white"><%= reqItem.software_name %></td>
+                    <td class="py-2.5 px-3 font-mono text-slate-400"><%= reqItem.version_needed || 'Terbaru' %></td>
+                    <td class="py-2.5 px-3"><%= reqItem.name %></td>
+                    <td class="py-2.5 px-3">
+                      <% if (reqItem.status === 'completed') { %>
+                        <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Sudah Diupload</span>
+                      <% } else if (reqItem.status === 'rejected') { %>
+                        <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-500/20 text-rose-400 border border-rose-500/30">Ditolak</span>
+                      <% } else { %>
+                        <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30">Sedang Diproses</span>
+                      <% } %>
+                    </td>
+                    <td class="py-2.5 px-3 text-slate-500"><%= formatDate(reqItem.created_at) %></td>
+                  </tr>
+                <% }) %>
+              <% } else { %>
+                <tr>
+                  <td colspan="5" class="py-4 text-center text-slate-500">Belum ada request software.</td>
+                </tr>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="lg:col-span-4">
+      <%- include('partials/sidebar') %>
+    </div>
+
+  </div>
+
+</main>
+
+<%- include('partials/footer') %>

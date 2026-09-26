@@ -1,0 +1,380 @@
+<%- include('../layout-header') %>
+
+<form action="<%= post && post.id ? `/admin/posts/${post.id}/edit` : '/admin/posts/new' %>" method="POST" enctype="multipart/form-data" class="space-y-6">
+
+  <!-- Header & Submit -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-800">
+    <div>
+      <h1 class="text-xl font-black text-white"><%= title %></h1>
+      <p class="text-xs text-slate-400 mt-0.5">Isi data spesifikasi, panduan install, dan tautan mirror unduhan software.</p>
+    </div>
+    <div class="flex items-center gap-3">
+      <a href="/admin/posts" class="bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs py-2.5 px-4 rounded-xl transition border border-slate-700">
+        Batal
+      </a>
+      <button type="submit" class="bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs py-2.5 px-6 rounded-xl shadow-lg shadow-blue-600/30 transition flex items-center gap-2">
+        <i class="fa-solid fa-floppy-disk"></i> Simpan Software
+      </button>
+    </div>
+  </div>
+
+  <% if (typeof error !== 'undefined' && error) { %>
+    <div class="p-4 rounded-xl bg-rose-950/70 border border-rose-800 text-rose-300 text-xs font-semibold flex items-center gap-2">
+      <i class="fa-solid fa-circle-exclamation text-base"></i>
+      <%= error %>
+    </div>
+  <% } %>
+
+  <!-- Grid: Left Main (8 cols) + Right Sidebar (4 cols) -->
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+    
+    <!-- LEFT: Main Software Content -->
+    <div class="lg:col-span-8 space-y-6">
+      
+      <!-- Basic Info Box -->
+      <div class="bg-[#151f32] border border-slate-800 rounded-2xl p-6 shadow-sm space-y-4">
+        <div>
+          <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">Judul Software / Game *</label>
+          <input 
+            type="text" 
+            name="title" 
+            required 
+            value="<%= post ? post.title : '' %>"
+            placeholder="Contoh: Adobe Photoshop 2024 v25.11 Full Version" 
+            class="w-full bg-[#121927] border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 font-semibold"
+          >
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">Slug URL (Opsional, otomatis digenerate jika kosong)</label>
+          <div class="flex items-center">
+            <span class="bg-slate-800 border border-r-0 border-slate-700 px-3 py-2 text-xs text-slate-400 rounded-l-xl">/software/</span>
+            <input 
+              type="text" 
+              name="slug" 
+              value="<%= post ? post.slug : '' %>"
+              placeholder="adobe-photoshop-2024-full-version" 
+              class="flex-1 bg-[#121927] border border-slate-700 rounded-r-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 font-mono"
+            >
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">Ringkasan Singkat (Excerpt)</label>
+          <textarea 
+            name="excerpt" 
+            rows="2" 
+            placeholder="Ringkasan 1-2 kalimat yang tampil pada kartu software di halaman beranda..." 
+            class="w-full bg-[#121927] border border-slate-700 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
+          ><%= post ? post.excerpt : '' %></textarea>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">Deskripsi Lengkap / Ulasan Software</label>
+          <textarea 
+            name="description" 
+            rows="6" 
+            placeholder="Tuliskan ulasan software (Mendukung tag HTML seperti <p>, <strong>, <em>, dll)..." 
+            class="w-full bg-[#121927] border border-slate-700 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 leading-relaxed font-mono"
+          ><%= post ? post.description : '' %></textarea>
+        </div>
+      </div>
+
+      <!-- Features, Requirements & Installation Guide -->
+      <div class="bg-[#151f32] border border-slate-800 rounded-2xl p-6 shadow-sm space-y-5">
+        <div>
+          <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">Fitur-Fitur Utama (Features)</label>
+          <textarea 
+            name="features" 
+            rows="4" 
+            placeholder="Gunakan <ul> dan <li> atau teks berpoin untuk fitur baru..." 
+            class="w-full bg-[#121927] border border-slate-700 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 font-mono"
+          ><%= post ? post.features : '' %></textarea>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">Persyaratan Sistem (System Requirements)</label>
+          <textarea 
+            name="system_req" 
+            rows="4" 
+            placeholder="Minimal RAM, CPU, GPU, dan Kapasitas Penyimpanan..." 
+            class="w-full bg-[#121927] border border-slate-700 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 font-mono"
+          ><%= post ? post.system_req : '' %></textarea>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">Panduan Instalasi (Step-by-step)</label>
+          <textarea 
+            name="install_guide" 
+            rows="4" 
+            placeholder="Gunakan <ol> dan <li> untuk urutan langkah instalasi yang rapi..." 
+            class="w-full bg-[#121927] border border-slate-700 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 font-mono"
+          ><%= post ? post.install_guide : '' %></textarea>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+            <i class="fa-solid fa-clock-rotate-left text-amber-400"></i> Riwayat Versi & Catatan Pembaruan (Changelog)
+          </label>
+          <textarea 
+            name="changelog" 
+            rows="3" 
+            placeholder="• Apa yang baru pada rilis ini? (misal: Update v25.11, perbaikan crash, penambahan DLC)..." 
+            class="w-full bg-[#121927] border border-slate-700 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 font-mono"
+          ><%= post ? (post.changelog || '') : '' %></textarea>
+        </div>
+      </div>
+
+      <!-- DYNAMIC DOWNLOAD LINKS REPEATER -->
+      <div class="bg-[#151f32] border border-slate-800 rounded-2xl p-6 shadow-sm">
+        <div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-800">
+          <div>
+            <h3 class="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+              <i class="fa-solid fa-cloud-arrow-down text-blue-400"></i> Server Mirror & Tautan Unduhan
+            </h3>
+            <p class="text-xs text-slate-400 mt-0.5">Tambahkan pilihan link mirror (Google Drive, Mega, Mediafire, dll.)</p>
+          </div>
+          <button type="button" id="addLinkBtn" class="bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs py-2 px-3.5 rounded-xl transition flex items-center gap-1.5">
+            <i class="fa-solid fa-plus text-xs"></i> Tambah Server Mirror
+          </button>
+        </div>
+
+        <div id="linksContainer" class="space-y-3">
+          <% if (links && links.length > 0) { %>
+            <% links.forEach((l, idx) => { %>
+              <div class="link-item bg-[#121927] border border-slate-700/80 rounded-xl p-3.5 flex flex-col sm:flex-row items-start sm:items-center gap-3">
+                <div class="w-full sm:w-1/4">
+                  <input type="text" name="link_server" value="<%= l.server_name %>" required placeholder="Google Drive, Mega..." class="w-full bg-[#151f32] border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 font-semibold">
+                </div>
+                <div class="w-full sm:w-1/3">
+                  <input type="url" name="link_url" value="<%= l.download_url %>" required placeholder="https://..." class="w-full bg-[#151f32] border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 font-mono">
+                </div>
+                <div class="w-full sm:w-1/5">
+                  <select name="link_type" class="w-full bg-[#151f32] border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-slate-300 focus:outline-none focus:border-blue-500">
+                    <option value="full" <%= l.link_type === 'full' ? 'selected' : '' %>>Full Single Link</option>
+                    <option value="part" <%= l.link_type === 'part' ? 'selected' : '' %>>Part Link</option>
+                    <option value="patch" <%= l.link_type === 'patch' ? 'selected' : '' %>>Patch Only</option>
+                    <option value="portable" <%= l.link_type === 'portable' ? 'selected' : '' %>>Portable</option>
+                  </select>
+                </div>
+                <div class="w-full sm:w-1/5">
+                  <input type="text" name="link_note" value="<%= l.note || '' %>" placeholder="Catatan / Kecepatan" class="w-full bg-[#151f32] border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500">
+                </div>
+                <button type="button" onclick="this.closest('.link-item').remove()" class="text-rose-400 hover:text-rose-300 p-1.5 self-end sm:self-center" title="Hapus Mirror">
+                  <i class="fa-solid fa-trash-can"></i>
+                </button>
+              </div>
+            <% }) %>
+          <% } else { %>
+            <!-- Default First Row -->
+            <div class="link-item bg-[#121927] border border-slate-700/80 rounded-xl p-3.5 flex flex-col sm:flex-row items-start sm:items-center gap-3">
+              <div class="w-full sm:w-1/4">
+                <input type="text" name="link_server" value="Google Drive" required placeholder="Google Drive, Mega..." class="w-full bg-[#151f32] border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 font-semibold">
+              </div>
+              <div class="w-full sm:w-1/3">
+                <input type="url" name="link_url" value="https://drive.google.com" required placeholder="https://..." class="w-full bg-[#151f32] border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 font-mono">
+              </div>
+              <div class="w-full sm:w-1/5">
+                <select name="link_type" class="w-full bg-[#151f32] border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-slate-300 focus:outline-none focus:border-blue-500">
+                  <option value="full">Full Single Link</option>
+                  <option value="part">Part Link</option>
+                  <option value="patch">Patch Only</option>
+                  <option value="portable">Portable</option>
+                </select>
+              </div>
+              <div class="w-full sm:w-1/5">
+                <input type="text" name="link_note" value="Kecepatan Maksimal" placeholder="Catatan / Kecepatan" class="w-full bg-[#151f32] border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500">
+              </div>
+              <button type="button" onclick="this.closest('.link-item').remove()" class="text-rose-400 hover:text-rose-300 p-1.5 self-end sm:self-center" title="Hapus Mirror">
+                <i class="fa-solid fa-trash-can"></i>
+              </button>
+            </div>
+          <% } %>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- RIGHT: Sidebar Specs & Media -->
+    <div class="lg:col-span-4 space-y-6">
+      
+      <!-- Publish Box -->
+      <div class="bg-[#151f32] border border-slate-800 rounded-2xl p-5 shadow-sm space-y-4">
+        <h3 class="text-xs font-bold text-white uppercase tracking-wider pb-3 border-b border-slate-800">
+          Status & Publikasi
+        </h3>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Status Publikasi</label>
+          <select name="status" class="w-full bg-[#121927] border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500 font-semibold">
+            <option value="published" <%= post && post.status === 'published' ? 'selected' : '' %>>Published (Langsung Tayang)</option>
+            <option value="draft" <%= post && post.status === 'draft' ? 'selected' : '' %>>Draft (Simpan Sementara)</option>
+          </select>
+        </div>
+
+        <div class="flex items-center gap-2 pt-1">
+          <input type="checkbox" id="is_featured" name="is_featured" value="1" <%= post && post.is_featured ? 'checked' : '' %> class="w-4 h-4 rounded bg-slate-900 border-slate-700 text-blue-600 focus:ring-0">
+          <label for="is_featured" class="text-xs font-semibold text-white cursor-pointer select-none">
+            ⭐ Tampilkan di Hero / Rekomendasi Utama
+          </label>
+        </div>
+      </div>
+
+      <!-- Category & Technical Specs -->
+      <div class="bg-[#151f32] border border-slate-800 rounded-2xl p-5 shadow-sm space-y-4">
+        <h3 class="text-xs font-bold text-white uppercase tracking-wider pb-3 border-b border-slate-800">
+          Kategori & Spesifikasi
+        </h3>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Kategori Software *</label>
+          <select name="category_id" required class="w-full bg-[#121927] border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500">
+            <% categories.forEach(c => { %>
+              <option value="<%= c.id %>" <%= post && post.category_id == c.id ? 'selected' : '' %>><%= c.name %></option>
+            <% }) %>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Versi Software</label>
+          <input type="text" name="version" value="<%= post ? post.version : '' %>" placeholder="v25.11 / v2024" class="w-full bg-[#121927] border border-slate-700 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 font-mono">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Ukuran File</label>
+          <input type="text" name="file_size" value="<%= post ? post.file_size : '' %>" placeholder="3.42 GB / 15 MB" class="w-full bg-[#121927] border border-slate-700 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Sistem Operasi</label>
+          <input type="text" name="os_support" value="<%= post ? post.os_support : 'Windows 10 / 11 (64-bit)' %>" placeholder="Windows 10 / 11" class="w-full bg-[#121927] border border-slate-700 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Arsitektur</label>
+          <select name="architecture" class="w-full bg-[#121927] border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+            <option value="64-bit (x64)" <%= post && post.architecture === '64-bit (x64)' ? 'selected' : '' %>>64-bit (x64)</option>
+            <option value="32-bit (x86)" <%= post && post.architecture === '32-bit (x86)' ? 'selected' : '' %>>32-bit (x86)</option>
+            <option value="Dual (x86 & x64)" <%= post && post.architecture === 'Dual (x86 & x64)' ? 'selected' : '' %>>Dual (x86 & x64)</option>
+            <option value="macOS Apple Silicon / Intel" <%= post && post.architecture === 'macOS Apple Silicon / Intel' ? 'selected' : '' %>>macOS</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Pengembang / Developer</label>
+          <input type="text" name="developer" value="<%= post ? post.developer : '' %>" placeholder="Adobe Inc., Tonec, Rockstar..." class="w-full bg-[#121927] border border-slate-700 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Tag / Tipe Rilis (Pisahkan Koma)</label>
+          <input type="text" name="tags" value="<%= post ? (post.tags || 'Pre-Activated') : 'Pre-Activated' %>" placeholder="Pre-Activated, Portable, Full-DLC, Repack" class="w-full bg-[#121927] border border-slate-700 rounded-xl px-3 py-2 text-xs text-emerald-400 font-semibold placeholder-slate-500">
+          <p class="text-[10px] text-slate-400 mt-1">Contoh: Pre-Activated, Portable, Full-DLC, Repack</p>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Password WinRAR</label>
+          <input type="text" name="rar_password" value="<%= post ? post.rar_password : defaultPassword %>" placeholder="Khanza.NET" class="w-full bg-[#121927] border border-slate-700 rounded-xl px-3 py-2 text-xs text-amber-400 font-mono font-bold">
+        </div>
+      </div>
+
+      <!-- Verifikasi & Keamanan File -->
+      <div class="bg-[#151f32] border border-slate-800 rounded-2xl p-5 shadow-sm space-y-4">
+        <h3 class="text-xs font-bold text-white uppercase tracking-wider pb-3 border-b border-slate-800 flex items-center gap-2">
+          <i class="fa-solid fa-shield-virus text-emerald-400"></i> Integritas & Verifikasi File
+        </h3>
+
+        <div class="flex items-center gap-2 pt-1">
+          <input type="checkbox" id="is_tested" name="is_tested" value="1" <%= (post && (post.is_tested === 1 || post.is_tested === '1' || post.is_tested === true)) || (!post) ? 'checked' : '' %> class="w-4 h-4 rounded bg-slate-900 border-slate-700 text-emerald-600 focus:ring-0">
+          <label for="is_tested" class="text-xs font-semibold text-emerald-400 cursor-pointer select-none flex items-center gap-1.5">
+            <i class="fa-solid fa-circle-check"></i> 100% Tested & Verified Clean
+          </label>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">SHA-256 Checksum Hash (Opsional)</label>
+          <input type="text" name="checksum_sha256" value="<%= post ? (post.checksum_sha256 || '') : '' %>" placeholder="Contoh: a8f5c9e2b1034f78d..." class="w-full bg-[#121927] border border-slate-700 rounded-xl px-3 py-2 text-xs text-sky-400 placeholder-slate-500 font-mono">
+          <p class="text-[10px] text-slate-400 mt-1">Hash SHA-256 untuk memverifikasi keaslian file unduhan pengguna.</p>
+        </div>
+      </div>
+
+      <!-- Thumbnail Cover Image -->
+      <div class="bg-[#151f32] border border-slate-800 rounded-2xl p-5 shadow-sm space-y-4">
+        <h3 class="text-xs font-bold text-white uppercase tracking-wider pb-3 border-b border-slate-800">
+          Thumbnail Cover
+        </h3>
+
+        <% if (post && post.thumbnail) { %>
+          <div class="mb-3 rounded-lg overflow-hidden border border-slate-700 h-32 bg-slate-900">
+            <img src="<%= post.thumbnail %>" alt="Current Cover" class="w-full h-full object-cover">
+          </div>
+        <% } %>
+
+        <div>
+          <label class="block text-[11px] font-semibold text-slate-400 mb-1">Opsi 1: Masukkan URL Gambar</label>
+          <input type="text" name="thumbnail_url" value="<%= post ? post.thumbnail : '' %>" placeholder="https://..." class="w-full bg-[#121927] border border-slate-700 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 font-mono">
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-semibold text-slate-400 mb-1">Opsi 2: Atau Upload dari Komputer</label>
+          <input type="file" name="thumbnail_file" accept="image/*" class="w-full text-xs text-slate-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-500 cursor-pointer">
+        </div>
+      </div>
+
+      <!-- Screenshot Gallery URLs -->
+      <div class="bg-[#151f32] border border-slate-800 rounded-2xl p-5 shadow-sm space-y-2">
+        <h3 class="text-xs font-bold text-white uppercase tracking-wider pb-2 border-b border-slate-800">
+          Screenshot URLs
+        </h3>
+        <p class="text-[11px] text-slate-400">Masukkan 1 link URL gambar tangkapan layar per baris:</p>
+        <textarea 
+          name="screenshots_urls" 
+          rows="3" 
+          placeholder="https://image1.jpg&#10;https://image2.jpg" 
+          class="w-full bg-[#121927] border border-slate-700 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 font-mono"
+        ><%= post && post.screenshots_urls ? post.screenshots_urls : '' %></textarea>
+      </div>
+
+    </div>
+
+  </div>
+
+</form>
+
+<!-- Client script for adding dynamic download links -->
+<script>
+  const addLinkBtn = document.getElementById('addLinkBtn');
+  const linksContainer = document.getElementById('linksContainer');
+
+  if (addLinkBtn && linksContainer) {
+    addLinkBtn.addEventListener('click', () => {
+      const div = document.createElement('div');
+      div.className = 'link-item bg-[#121927] border border-slate-700/80 rounded-xl p-3.5 flex flex-col sm:flex-row items-start sm:items-center gap-3';
+      div.innerHTML = `
+        <div class="w-full sm:w-1/4">
+          <input type="text" name="link_server" value="Mediafire" required placeholder="Nama Server..." class="w-full bg-[#151f32] border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 font-semibold">
+        </div>
+        <div class="w-full sm:w-1/3">
+          <input type="url" name="link_url" value="https://mediafire.com" required placeholder="https://..." class="w-full bg-[#151f32] border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 font-mono">
+        </div>
+        <div class="w-full sm:w-1/5">
+          <select name="link_type" class="w-full bg-[#151f32] border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-slate-300 focus:outline-none focus:border-blue-500">
+            <option value="full">Full Single Link</option>
+            <option value="part">Part Link</option>
+            <option value="patch">Patch Only</option>
+            <option value="portable">Portable</option>
+          </select>
+        </div>
+        <div class="w-full sm:w-1/5">
+          <input type="text" name="link_note" value="Direct Mirror" placeholder="Catatan / Kecepatan" class="w-full bg-[#151f32] border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500">
+        </div>
+        <button type="button" onclick="this.closest('.link-item').remove()" class="text-rose-400 hover:text-rose-300 p-1.5 self-end sm:self-center" title="Hapus Mirror">
+          <i class="fa-solid fa-trash-can"></i>
+        </button>
+      `;
+      linksContainer.appendChild(div);
+    });
+  }
+</script>
+
+<%- include('../layout-footer') %>

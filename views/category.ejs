@@ -1,0 +1,114 @@
+<%- include('partials/header') %>
+<%- include('partials/navbar') %>
+
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full">
+
+  <!-- Category Banner Header -->
+  <div class="bg-[#151f32] border border-slate-800 rounded-2xl p-6 sm:p-8 mb-8 relative overflow-hidden shadow-lg">
+    <div class="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div class="flex items-center gap-4">
+        <div class="w-14 h-14 rounded-2xl flex items-center justify-center text-white text-2xl shadow-lg shrink-0" style="background-color: <%= category.color || '#3b82f6' %>">
+          <i class="<%= category.icon %>"></i>
+        </div>
+        <div>
+          <h1 class="text-xl sm:text-2xl font-black text-white">
+            Kategori: <%= category.name %>
+          </h1>
+          <p class="text-xs text-slate-400 mt-1">
+            <%= category.description || 'Koleksi software dan game dalam kategori ini.' %>
+          </p>
+        </div>
+      </div>
+      <div class="text-xs bg-slate-900/80 border border-slate-800 px-3.5 py-1.5 rounded-xl text-slate-300 self-start sm:self-auto">
+        Total <span class="font-bold text-white"><%= totalCount %></span> Software
+      </div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+    
+    <!-- Left Column: Posts List -->
+    <div class="lg:col-span-8">
+      
+      <% if (posts && posts.length > 0) { %>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-8">
+          <% posts.forEach(post => { %>
+            <article class="software-card rounded-xl overflow-hidden flex flex-col group">
+              <div class="h-44 w-full overflow-hidden relative bg-slate-950">
+                <a href="/software/<%= post.slug %>" class="block w-full h-full">
+                  <img src="<%= post.thumbnail %>" alt="<%= post.title %>" class="thumb-img w-full h-full object-cover" onerror="this.src='https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=600&auto=format&fit=crop&q=80'">
+                </a>
+                
+                <div class="absolute top-2.5 left-2.5">
+                  <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold text-white shadow-md backdrop-blur-sm" style="background-color: <%= category.color || '#3b82f6' %>">
+                    <%= category.name %>
+                  </span>
+                </div>
+
+                <% if (post.version) { %>
+                  <div class="absolute top-2.5 right-2.5">
+                    <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-slate-900/90 text-sky-300 border border-slate-700/80 shadow">
+                      <%= post.version %>
+                    </span>
+                  </div>
+                <% } %>
+              </div>
+
+              <div class="p-4 flex-1 flex flex-col justify-between">
+                <div>
+                  <h2 class="text-sm font-bold text-white group-hover:text-blue-400 transition-colors line-clamp-2 mb-2">
+                    <a href="/software/<%= post.slug %>">
+                      <%= post.title %>
+                    </a>
+                  </h2>
+                  <p class="text-xs text-slate-400 line-clamp-2 mb-4">
+                    <%= post.excerpt || 'Klik untuk mengunduh software lengkap.' %>
+                  </p>
+                </div>
+
+                <div class="pt-3 border-t border-slate-800/80">
+                  <div class="flex items-center justify-between text-[11px] text-slate-400 mb-3">
+                    <span><i class="fa-solid fa-hdd text-blue-400 mr-1"></i> <%= post.file_size || 'N/A' %></span>
+                    <span><i class="fa-solid fa-calendar text-slate-500 mr-1"></i> <%= formatDate(post.created_at) %></span>
+                  </div>
+
+                  <a href="/software/<%= post.slug %>" class="w-full bg-slate-800 hover:bg-blue-600 text-slate-200 hover:text-white text-xs font-bold py-2 px-3 rounded-lg text-center transition flex items-center justify-center gap-2 group-hover:bg-blue-600 group-hover:text-white">
+                    <i class="fa-solid fa-download text-xs"></i> Detail & Unduh
+                  </a>
+                </div>
+              </div>
+            </article>
+          <% }) %>
+        </div>
+
+        <!-- Pagination -->
+        <% if (totalPages > 1) { %>
+          <div class="flex items-center justify-center space-x-2 py-4">
+            <% for(let p = 1; p <= totalPages; p++) { %>
+              <a href="/category/<%= category.slug %>?page=<%= p %>" class="px-3.5 py-2 text-xs font-bold rounded-lg <%= p === currentPage ? 'bg-blue-600 text-white shadow-md' : 'bg-slate-800 text-slate-300 hover:bg-slate-700' %> transition">
+                <%= p %>
+              </a>
+            <% } %>
+          </div>
+        <% } %>
+
+      <% } else { %>
+        <div class="bg-slate-900 border border-slate-800 rounded-xl p-12 text-center">
+          <i class="fa-solid fa-folder-open text-4xl text-slate-600 mb-3"></i>
+          <h3 class="text-base font-bold text-white mb-1">Belum Ada Software di Kategori Ini</h3>
+          <p class="text-xs text-slate-400">Silakan kembali lagi nanti atau request software yang Anda inginkan.</p>
+        </div>
+      <% } %>
+
+    </div>
+
+    <!-- Right Column: Sidebar -->
+    <div class="lg:col-span-4">
+      <%- include('partials/sidebar') %>
+    </div>
+
+  </div>
+
+</main>
+
+<%- include('partials/footer') %>

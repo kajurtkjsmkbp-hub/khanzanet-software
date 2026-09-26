@@ -1,0 +1,14 @@
+    </main>
+  </div>
+
+  <script>
+    const toggleSidebarBtn = document.getElementById('toggleSidebar');
+    const adminSidebar = document.getElementById('adminSidebar');
+    if (toggleSidebarBtn && adminSidebar) {
+      toggleSidebarBtn.addEventListener('click', () => {
+        adminSidebar.classList.toggle('-translate-x-full');
+      });
+    }
+  </script>
+</body>
+</html>

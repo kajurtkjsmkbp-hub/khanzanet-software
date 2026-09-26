@@ -1,0 +1,80 @@
+<%- include('../layout-header') %>
+
+<div class="space-y-6">
+
+  <div>
+    <h1 class="text-xl font-black text-white">Moderasi Komentar</h1>
+    <p class="text-xs text-slate-400 mt-0.5">Pantau dan kelola komentar pengunjung serta laporan link bermasalah.</p>
+  </div>
+
+  <% if (typeof success !== 'undefined' && success) { %>
+    <div class="p-4 rounded-xl bg-emerald-950/70 border border-emerald-800 text-emerald-300 text-xs font-semibold flex items-center gap-2">
+      <i class="fa-solid fa-circle-check text-base"></i>
+      <%= success %>
+    </div>
+  <% } %>
+
+  <div class="bg-[#151f32] border border-slate-800 rounded-2xl overflow-hidden shadow-sm">
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-xs text-slate-300">
+        <thead class="bg-[#0f172a] text-slate-400 uppercase text-[10px] tracking-wider border-b border-slate-800">
+          <tr>
+            <th class="py-3.5 px-4">Software</th>
+            <th class="py-3.5 px-4">Pengirim</th>
+            <th class="py-3.5 px-4">Isi Komentar</th>
+            <th class="py-3.5 px-4">Status</th>
+            <th class="py-3.5 px-4">Tanggal</th>
+            <th class="py-3.5 px-4 text-right">Aksi</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-800/80">
+          <% if (comments && comments.length > 0) { %>
+            <% comments.forEach(cm => { %>
+              <tr class="hover:bg-slate-800/40 transition">
+                <td class="py-3.5 px-4">
+                  <a href="/software/<%= cm.post_slug %>" target="_blank" class="font-bold text-blue-400 hover:underline max-w-xs truncate block">
+                    <%= cm.post_title %>
+                  </a>
+                </td>
+                <td class="py-3.5 px-4">
+                  <div class="font-semibold text-white"><%= cm.author_name %></div>
+                  <div class="text-[11px] text-slate-500"><%= cm.author_email || '-' %></div>
+                </td>
+                <td class="py-3.5 px-4 max-w-sm">
+                  <p class="text-slate-300 leading-relaxed"><%= cm.comment_text %></p>
+                </td>
+                <td class="py-3.5 px-4">
+                  <form action="/admin/comments/<%= cm.id %>/status" method="POST" class="inline">
+                    <input type="hidden" name="status" value="<%= cm.status === 'approved' ? 'pending' : 'approved' %>">
+                    <button type="submit" class="px-2 py-0.5 rounded text-[10px] font-bold <%= cm.status === 'approved' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-amber-500/20 text-amber-400 border border-amber-500/30' %>">
+                      <%= cm.status === 'approved' ? 'Disetujui' : 'Tertahan' %>
+                    </button>
+                  </form>
+                </td>
+                <td class="py-3.5 px-4 text-slate-500 text-[11px]">
+                  <%= formatDate(cm.created_at) %>
+                </td>
+                <td class="py-3.5 px-4 text-right">
+                  <form action="/admin/comments/<%= cm.id %>/delete" method="POST" class="inline" onsubmit="return confirm('Hapus komentar ini?');">
+                    <button type="submit" class="p-1.5 text-rose-400 hover:text-rose-300" title="Hapus Komentar">
+                      <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                  </form>
+                </td>
+              </tr>
+            <% }) %>
+          <% } else { %>
+            <tr>
+              <td colspan="6" class="py-8 text-center text-slate-500">
+                Belum ada komentar dari pengunjung.
+              </td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<%- include('../layout-footer') %>

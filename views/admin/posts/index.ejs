@@ -1,0 +1,159 @@
+<%- include('../layout-header') %>
+
+<div class="space-y-6">
+
+  <!-- Header & Actions -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div>
+      <h1 class="text-xl font-black text-white">Manajemen Software & Repack</h1>
+      <p class="text-xs text-slate-400 mt-0.5">Kelola seluruh postingan software, versi, spesifikasi, dan link mirror download.</p>
+    </div>
+    <a href="/admin/posts/new" class="bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs py-2.5 px-4 rounded-xl shadow-md transition flex items-center gap-2 self-start sm:self-auto">
+      <i class="fa-solid fa-plus"></i> Tambah Software Baru
+    </a>
+  </div>
+
+  <% if (typeof success !== 'undefined' && success) { %>
+    <div class="p-4 rounded-xl bg-emerald-950/70 border border-emerald-800 text-emerald-300 text-xs font-semibold flex items-center gap-2">
+      <i class="fa-solid fa-circle-check text-base"></i>
+      <%= success %>
+    </div>
+  <% } %>
+
+  <!-- Search & Filters Bar -->
+  <div class="bg-[#151f32] border border-slate-800 rounded-2xl p-4">
+    <form action="/admin/posts" method="GET" class="flex flex-col sm:flex-row gap-3">
+      <div class="flex-1 relative">
+        <span class="absolute left-3.5 top-2.5 text-slate-500">
+          <i class="fa-solid fa-magnifying-glass text-xs"></i>
+        </span>
+        <input 
+          type="text" 
+          name="q" 
+          value="<%= search %>" 
+          placeholder="Cari judul software, pengembang..." 
+          class="w-full bg-[#121927] border border-slate-700 rounded-xl pl-9 pr-4 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
+        >
+      </div>
+      <select name="cat" class="bg-[#121927] border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-300 focus:outline-none focus:border-blue-500">
+        <option value="">Semua Kategori</option>
+        <% categories.forEach(c => { %>
+          <option value="<%= c.id %>" <%= selectedCat == c.id ? 'selected' : '' %>><%= c.name %></option>
+        <% }) %>
+      </select>
+      <button type="submit" class="bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs px-5 py-2 rounded-xl transition border border-slate-700">
+        Filter
+      </button>
+      <% if (search || selectedCat) { %>
+        <a href="/admin/posts" class="bg-rose-950/40 text-rose-400 hover:bg-rose-900/60 font-semibold text-xs px-4 py-2 rounded-xl transition border border-rose-800 flex items-center justify-center">
+          Reset
+        </a>
+      <% } %>
+    </form>
+  </div>
+
+  <!-- Software Data Table -->
+  <div class="bg-[#151f32] border border-slate-800 rounded-2xl overflow-hidden shadow-sm">
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-xs text-slate-300">
+        <thead class="bg-[#0f172a] text-slate-400 uppercase text-[10px] tracking-wider border-b border-slate-800">
+          <tr>
+            <th class="py-3.5 px-4">Software</th>
+            <th class="py-3.5 px-4">Kategori</th>
+            <th class="py-3.5 px-4">Statistik</th>
+            <th class="py-3.5 px-4">Links</th>
+            <th class="py-3.5 px-4">Status</th>
+            <th class="py-3.5 px-4">Tanggal</th>
+            <th class="py-3.5 px-4 text-right">Aksi</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-800/80">
+          <% if (posts && posts.length > 0) { %>
+            <% posts.forEach(post => { %>
+              <tr class="hover:bg-slate-800/40 transition">
+                <td class="py-3 px-4">
+                  <div class="font-bold text-white max-w-xs truncate"><%= post.title %></div>
+                  <div class="text-[11px] text-slate-500 font-mono mt-0.5">
+                    <%= post.version || 'No Version' %> • /software/<%= post.slug %>
+                  </div>
+                </td>
+                <td class="py-3 px-4">
+                  <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-800 text-slate-300 border border-slate-700">
+                    <%= post.category_name || 'Tanpa Kategori' %>
+                  </span>
+                </td>
+                <td class="py-3 px-4">
+                  <div class="text-[11px]">
+                    <span class="text-blue-400"><i class="fa-solid fa-eye mr-1"></i><%= post.views_count %></span>
+                    <span class="text-emerald-400 ml-2"><i class="fa-solid fa-download mr-1"></i><%= post.downloads_count %></span>
+                  </div>
+                </td>
+                <td class="py-3 px-4">
+                  <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-950/60 text-blue-300 border border-blue-800/60">
+                    <%= post.link_count %> Mirror
+                  </span>
+                </td>
+                <td class="py-3 px-4">
+                  <% if (post.status === 'published') { %>
+                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                      Publish
+                    </span>
+                  <% } else { %>
+                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-700 text-slate-400">
+                      Draft
+                    </span>
+                  <% } %>
+                  <% if (post.is_featured) { %>
+                    <span class="ml-1 px-1.5 py-0.5 rounded text-[9px] font-black bg-rose-600/30 text-rose-400 border border-rose-500/40">
+                      HOT
+                    </span>
+                  <% } %>
+                </td>
+                <td class="py-3 px-4 text-slate-500 text-[11px]">
+                  <%= formatDate(post.created_at) %>
+                </td>
+                <td class="py-3 px-4 text-right space-x-2">
+                  <a href="/software/<%= post.slug %>" target="_blank" class="p-1.5 text-slate-400 hover:text-white transition" title="Lihat di Web">
+                    <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                  </a>
+                  <a href="/admin/posts/<%= post.id %>/edit" class="p-1.5 text-blue-400 hover:text-blue-300 transition" title="Edit Software">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                  </a>
+                  <form action="/admin/posts/<%= post.id %>/delete" method="POST" class="inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus software ini beserta semua link downloadnya?');">
+                    <button type="submit" class="p-1.5 text-rose-400 hover:text-rose-300 transition" title="Hapus Software">
+                      <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                  </form>
+                </td>
+              </tr>
+            <% }) %>
+          <% } else { %>
+            <tr>
+              <td colspan="7" class="py-8 text-center text-slate-500">
+                Tidak ada data software ditemukan.
+              </td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <% if (totalPages > 1) { %>
+      <div class="p-4 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
+        <div>Halaman <%= page %> dari <%= totalPages %> (<%= total %> total software)</div>
+        <div class="flex items-center space-x-1">
+          <% for(let p = 1; p <= totalPages; p++) { %>
+            <a href="/admin/posts?page=<%= p %>&q=<%= search %>&cat=<%= selectedCat %>" class="px-3 py-1 rounded-lg <%= p === page ? 'bg-blue-600 text-white font-bold' : 'bg-slate-800 text-slate-300 hover:bg-slate-700' %> transition">
+              <%= p %>
+            </a>
+          <% } %>
+        </div>
+      </div>
+    <% } %>
+
+  </div>
+
+</div>
+
+<%- include('../layout-footer') %>

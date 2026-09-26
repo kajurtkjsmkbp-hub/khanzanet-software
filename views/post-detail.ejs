@@ -1,0 +1,688 @@
+<%- include('partials/header') %>
+<%- include('partials/navbar') %>
+
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full">
+
+  <!-- Breadcrumb -->
+  <nav class="flex items-center space-x-2 text-xs text-slate-400 mb-6">
+    <a href="/" class="hover:text-blue-400 flex items-center gap-1">
+      <i class="fa-solid fa-house text-[10px]"></i> Beranda
+    </a>
+    <i class="fa-solid fa-chevron-right text-[10px] text-slate-600"></i>
+    <% if (post.category_name) { %>
+      <a href="/category/<%= post.category_slug %>" class="hover:text-blue-400">
+        <%= post.category_name %>
+      </a>
+      <i class="fa-solid fa-chevron-right text-[10px] text-slate-600"></i>
+    <% } %>
+    <span class="text-slate-200 font-semibold truncate max-w-xs sm:max-w-md"><%= post.title %></span>
+  </nav>
+
+  <!-- Layout: 8 Cols Main Content + 4 Cols Sidebar -->
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+    
+    <div class="lg:col-span-8">
+      
+      <!-- Article Header -->
+      <article class="bg-[#151f32] border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-xl mb-8">
+        
+        <div class="flex flex-wrap items-center gap-2 mb-3">
+          <% if (post.category_name) { %>
+            <a href="/category/<%= post.category_slug %>" class="px-3 py-1 rounded-full text-xs font-bold text-white shadow" style="background-color: <%= post.category_color || '#3b82f6' %>">
+              <i class="<%= post.category_icon || 'fa-solid fa-folder' %> mr-1"></i> <%= post.category_name %>
+            </a>
+          <% } %>
+
+          <% if (post.version) { %>
+            <span class="px-3 py-1 rounded-full text-xs font-mono font-bold bg-blue-600/20 text-blue-300 border border-blue-500/30">
+              <%= post.version %>
+            </span>
+          <% } %>
+
+          <% if (post.is_featured) { %>
+            <span class="px-3 py-1 rounded-full text-xs font-bold bg-rose-600/20 text-rose-300 border border-rose-500/30">
+              <i class="fa-solid fa-fire text-rose-400 mr-1"></i> Rekomendasi
+            </span>
+          <% } %>
+
+          <button 
+            type="button" 
+            data-bookmark-id="<%= post.id %>"
+            onclick="toggleBookmark({ id: <%= post.id %>, title: '<%= post.title.replace(/'/g, "\\'") %>', slug: '<%= post.slug %>', thumbnail: '<%= post.thumbnail %>', version: '<%= post.version || '' %>' }, this)" 
+            class="px-3 py-1 rounded-full text-xs font-bold bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-rose-400 border border-slate-700 transition flex items-center gap-1.5 ml-auto shadow"
+            title="Simpan ke Favorit"
+          >
+            <i class="fa-regular fa-heart text-xs"></i>
+            <span>Favorit</span>
+          </button>
+        </div>
+
+        <h1 class="text-xl sm:text-2xl lg:text-3xl font-black text-white leading-tight mb-4">
+          <%= post.title %>
+        </h1>
+
+        <!-- Meta Info Bar -->
+        <div class="flex flex-wrap items-center gap-y-2 gap-x-4 text-xs text-slate-400 pb-6 border-b border-slate-800 mb-6">
+          <span class="flex items-center gap-1.5">
+            <i class="fa-solid fa-calendar text-slate-500"></i> <%= formatDate(post.created_at) %>
+          </span>
+          <span class="flex items-center gap-1.5">
+            <i class="fa-solid fa-eye text-blue-400"></i> <%= formatNumber(post.views_count) %> Dilihat
+          </span>
+          <span class="flex items-center gap-1.5">
+            <i class="fa-solid fa-download text-emerald-400"></i> <%= formatNumber(post.downloads_count) %> Diunduh
+          </span>
+          <% if (post.developer) { %>
+            <span class="flex items-center gap-1.5 text-slate-300">
+              <i class="fa-solid fa-building text-slate-500"></i> Dev: <%= post.developer %>
+            </span>
+          <% } %>
+          
+          <!-- Rating Star Widget -->
+          <div class="flex items-center gap-1.5 bg-slate-900/90 px-2.5 py-1 rounded-lg border border-slate-700/80 ml-auto" id="rateWidget">
+            <div class="flex text-amber-400 text-xs gap-0.5" id="starGroup" title="Klik bintang untuk menilai software ini">
+              <i class="fa-solid fa-star cursor-pointer hover:scale-125 transition-transform" onclick="submitRating(1)"></i>
+              <i class="fa-solid fa-star cursor-pointer hover:scale-125 transition-transform" onclick="submitRating(2)"></i>
+              <i class="fa-solid fa-star cursor-pointer hover:scale-125 transition-transform" onclick="submitRating(3)"></i>
+              <i class="fa-solid fa-star cursor-pointer hover:scale-125 transition-transform" onclick="submitRating(4)"></i>
+              <i class="fa-solid fa-star cursor-pointer hover:scale-125 transition-transform" onclick="submitRating(5)"></i>
+            </div>
+            <span class="text-white font-bold ml-1" id="ratingScoreText"><%= post.rating_score || 5.0 %></span>
+            <span class="text-slate-500 text-[10px]">(<span id="ratingVotesText"><%= post.rating_votes || 1 %></span> vote)</span>
+          </div>
+        </div>
+
+        <!-- Cover & Specs Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-6 mb-8">
+          
+          <!-- Thumbnail -->
+          <div class="md:col-span-5">
+            <div class="rounded-xl overflow-hidden border border-slate-700/80 shadow-lg bg-slate-950">
+              <img src="<%= post.thumbnail %>" alt="<%= post.title %>" class="w-full h-auto object-cover max-h-72" onerror="this.src='https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=600&auto=format&fit=crop&q=80'">
+            </div>
+          </div>
+
+          <!-- Specs Table -->
+          <div class="md:col-span-7 flex flex-col justify-between">
+            <div class="bg-[#121927] border border-slate-800 rounded-xl p-4 text-xs space-y-2.5">
+              <div class="flex justify-between py-1 border-b border-slate-800/80">
+                <span class="text-slate-400">Nama Software:</span>
+                <span class="font-semibold text-white truncate max-w-[200px]"><%= post.title %></span>
+              </div>
+              <div class="flex justify-between py-1 border-b border-slate-800/80">
+                <span class="text-slate-400">Versi Terbaru:</span>
+                <span class="font-bold text-sky-400 font-mono"><%= post.version || 'Full Version' %></span>
+              </div>
+              <div class="flex justify-between py-1 border-b border-slate-800/80">
+                <span class="text-slate-400">Ukuran File:</span>
+                <span class="font-bold text-emerald-400"><%= post.file_size || 'N/A' %></span>
+              </div>
+              <div class="flex justify-between py-1 border-b border-slate-800/80">
+                <span class="text-slate-400">Sistem Operasi:</span>
+                <span class="font-medium text-slate-200"><%= post.os_support || 'Windows 10 / 11' %></span>
+              </div>
+              <div class="flex justify-between py-1 border-b border-slate-800/80">
+                <span class="text-slate-400">Arsitektur:</span>
+                <span class="font-medium text-slate-200"><%= post.architecture || '64-bit (x64)' %></span>
+              </div>
+              <div class="flex justify-between py-1 border-b border-slate-800/80">
+                <span class="text-slate-400">Tipe Lisensi:</span>
+                <span class="font-bold text-amber-400">Full Version (Activated)</span>
+              </div>
+              <div class="flex justify-between py-1 border-b border-slate-800/80">
+                <span class="text-slate-400">Password RAR:</span>
+                <span class="font-bold font-mono text-blue-400"><%= post.rar_password || settings.default_rar_password || 'Khanza.NET' %></span>
+              </div>
+              <% if (post.checksum_sha256) { %>
+                <div class="flex justify-between items-center py-1 border-b border-slate-800/80">
+                  <span class="text-slate-400">SHA-256 Checksum:</span>
+                  <div class="flex items-center gap-1.5 font-mono text-[11px] text-sky-400">
+                    <span class="truncate max-w-[130px]" title="<%= post.checksum_sha256 %>"><%= post.checksum_sha256.substring(0, 16) %>...</span>
+                    <button type="button" onclick="copyPassword(this, '<%= post.checksum_sha256 %>')" class="text-slate-400 hover:text-white p-1 rounded hover:bg-slate-800" title="Salin SHA-256"><i class="fa-regular fa-copy"></i></button>
+                  </div>
+                </div>
+              <% } %>
+              <div class="flex justify-between items-center py-1">
+                <span class="text-slate-400">Status Pengujian:</span>
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                  <i class="fa-solid fa-circle-check mr-1"></i> 100% Tested & Clean
+                </span>
+              </div>
+            </div>
+
+            <!-- Quick Jump to Download Button -->
+            <a href="#downloadSection" class="mt-4 w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-sm py-3 px-4 rounded-xl text-center shadow-lg shadow-blue-600/30 transition flex items-center justify-center gap-2">
+              <i class="fa-solid fa-cloud-arrow-down text-lg"></i> Menuju Link Download
+            </a>
+          </div>
+
+        </div>
+
+        <!-- Screenshots Gallery (If available) -->
+        <% if (screenshots && screenshots.length > 0) { %>
+          <div class="mb-8">
+            <h3 class="text-sm font-bold text-white uppercase tracking-wider mb-3 flex items-center gap-2">
+              <i class="fa-solid fa-images text-blue-400"></i> Screenshot Preview
+            </h3>
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              <% screenshots.forEach((src, sIdx) => { %>
+                <div class="cursor-pointer group relative overflow-hidden rounded-lg border border-slate-700 bg-slate-900 aspect-video">
+                  <img src="<%= src %>" alt="Screenshot <%= sIdx + 1 %>" class="screenshot-thumb w-full h-full object-cover group-hover:scale-105 transition duration-300" data-full="<%= src %>">
+                  <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-lg">
+                    <i class="fa-solid fa-magnifying-glass-plus"></i>
+                  </div>
+                </div>
+              <% }) %>
+            </div>
+            <p class="text-[11px] text-slate-500 mt-1.5 italic">*Klik gambar untuk memperbesar tangkapan layar.</p>
+          </div>
+        <% } %>
+
+        <!-- Description / Article Content -->
+        <div class="mb-8">
+          <h3 class="text-base font-bold text-white border-b border-slate-800 pb-2 mb-4 flex items-center gap-2">
+            <i class="fa-solid fa-circle-info text-blue-400"></i> Deskripsi & Ulasan
+          </h3>
+          <div class="article-content text-slate-300">
+            <%- post.description %>
+          </div>
+        </div>
+
+        <!-- Key Features List -->
+        <% if (post.features) { %>
+          <div class="mb-8 bg-[#121927] border border-slate-800 rounded-xl p-5">
+            <h3 class="text-sm font-bold text-white uppercase tracking-wider mb-3 flex items-center gap-2">
+              <i class="fa-solid fa-check-double text-emerald-400"></i> Fitur Utama
+            </h3>
+            <div class="article-content text-xs sm:text-sm text-slate-300">
+              <%- post.features %>
+            </div>
+          </div>
+        <% } %>
+
+        <!-- Version History & Changelog -->
+        <% if (post.changelog) { %>
+          <div class="mb-8 bg-[#121927] border border-amber-500/30 rounded-xl p-5 shadow-sm">
+            <h3 class="text-sm font-bold text-amber-400 uppercase tracking-wider mb-2 flex items-center gap-2">
+              <i class="fa-solid fa-clock-rotate-left"></i> Riwayat Pembaruan & Changelog
+            </h3>
+            <div class="text-xs text-slate-300 whitespace-pre-line leading-relaxed font-mono bg-[#0f172a] p-3.5 rounded-lg border border-slate-800">
+              <%= post.changelog %>
+            </div>
+          </div>
+        <% } %>
+
+        <!-- System Requirements -->
+        <% if (post.system_req) { %>
+          <div class="mb-8 bg-[#121927] border border-slate-800 rounded-xl p-5">
+            <h3 class="text-sm font-bold text-white uppercase tracking-wider mb-3 flex items-center gap-2">
+              <i class="fa-solid fa-laptop-code text-cyan-400"></i> Persyaratan Sistem (System Requirements)
+            </h3>
+            <div class="article-content text-xs sm:text-sm text-slate-300">
+              <%- post.system_req %>
+            </div>
+          </div>
+        <% } %>
+
+        <!-- Article Bottom Sponsor Banner -->
+        <% if (typeof settings !== 'undefined' && settings.ad_article_bottom && settings.ad_article_bottom.trim()) { %>
+          <div class="mb-8 bg-[#151f32] border border-slate-800 rounded-xl p-4 text-center overflow-hidden shadow-sm">
+            <div class="text-[9px] text-slate-500 uppercase tracking-widest font-semibold mb-2">Sponsor Rekomendasi</div>
+            <div class="flex justify-center items-center">
+              <%- settings.ad_article_bottom %>
+            </div>
+          </div>
+        <% } %>
+
+        <!-- DOWNLOAD CENTER BOX -->
+        <div id="downloadSection" class="scroll-mt-24 bg-gradient-to-b from-[#132038] to-[#0d1627] border-2 border-blue-500/60 rounded-2xl p-6 sm:p-8 shadow-2xl mb-8">
+          
+          <div class="text-center mb-6">
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black tracking-wider uppercase bg-blue-500 text-white shadow-md mb-2">
+              <i class="fa-solid fa-download"></i> DOWNLOAD CENTER
+            </span>
+            <h2 class="text-xl sm:text-2xl font-black text-white">
+              Download <%= post.title %>
+            </h2>
+            <p class="text-xs text-slate-400 mt-1">Pilih salah satu server mirror berkecepatan tinggi di bawah ini.</p>
+          </div>
+
+          <!-- Password RAR Box with One-Click Copy -->
+          <div class="password-box rounded-xl p-4 mb-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-lg bg-amber-500/20 border border-amber-500/40 text-amber-400 flex items-center justify-center shrink-0 text-lg">
+                <i class="fa-solid fa-key"></i>
+              </div>
+              <div>
+                <div class="text-xs text-slate-300 font-semibold">Password Ekstrak WinRAR:</div>
+                <div class="text-lg font-mono font-black text-amber-400 tracking-wider">
+                  <%= post.rar_password || settings.default_rar_password || 'Khanza.NET' %>
+                </div>
+              </div>
+            </div>
+
+            <button 
+              type="button" 
+              onclick="copyPassword(this, '<%= post.rar_password || settings.default_rar_password || 'Khanza.NET' %>')" 
+              class="w-full sm:w-auto bg-slate-800 hover:bg-slate-700 text-white border border-slate-600 text-xs font-bold py-2.5 px-5 rounded-lg transition flex items-center justify-center gap-2 shadow"
+            >
+              <i class="fa-regular fa-copy"></i> Salin Password
+            </button>
+          </div>
+
+          <!-- Download Mirror Header with Copy All Links -->
+          <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
+            <div class="text-xs font-bold text-white flex items-center gap-1.5 uppercase tracking-wider">
+              <i class="fa-solid fa-server text-blue-400"></i> Pilihan Server Mirror (<%= downloadLinks ? downloadLinks.length : 0 %>)
+            </div>
+            <% if (downloadLinks && downloadLinks.length > 0) { %>
+              <button 
+                type="button" 
+                onclick="copyAllLinks()" 
+                class="bg-slate-800 hover:bg-slate-700 text-sky-300 hover:text-white border border-slate-700 text-xs font-bold py-1.5 px-3 rounded-lg transition flex items-center gap-1.5 shadow"
+                title="Salin semua tautan download untuk IDM atau JDownloader"
+              >
+                <i class="fa-solid fa-clone text-xs"></i> Salin Semua Link (IDM Batch)
+              </button>
+            <% } %>
+          </div>
+
+          <!-- Download Mirror Links List -->
+          <div class="space-y-3 mb-8">
+            <% if (downloadLinks && downloadLinks.length > 0) { %>
+              <% downloadLinks.forEach((link, idx) => { %>
+                <div class="download-row bg-[#151f32] border border-slate-700/80 rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-md">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-lg bg-blue-600/20 border border-blue-500/40 text-blue-400 flex items-center justify-center shrink-0 font-bold text-sm">
+                      <% if (link.server_name.toLowerCase().includes('drive')) { %>
+                        <i class="fa-brands fa-google-drive text-lg"></i>
+                      <% } else if (link.server_name.toLowerCase().includes('mega')) { %>
+                        <i class="fa-solid fa-m text-lg"></i>
+                      <% } else if (link.server_name.toLowerCase().includes('mediafire')) { %>
+                        <i class="fa-solid fa-fire-flame-curved text-lg"></i>
+                      <% } else if (link.server_name.toLowerCase().includes('torrent')) { %>
+                        <i class="fa-solid fa-magnet text-lg"></i>
+                      <% } else { %>
+                        <i class="fa-solid fa-server text-lg"></i>
+                      <% } %>
+                    </div>
+                    <div>
+                      <div class="text-sm font-bold text-white flex items-center gap-2">
+                        <%= link.server_name %>
+                        <% if (link.link_type === 'part') { %>
+                          <span class="px-2 py-0.5 rounded text-[10px] bg-purple-500/20 text-purple-300 border border-purple-500/30">Part Link</span>
+                        <% } else if (link.link_type === 'patch') { %>
+                          <span class="px-2 py-0.5 rounded text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/30">Patch Only</span>
+                        <% } else { %>
+                          <span class="px-2 py-0.5 rounded text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Single Link</span>
+                        <% } %>
+                      </div>
+                      <% if (link.note) { %>
+                        <div class="text-xs text-slate-400 mt-0.5"><%= link.note %></div>
+                      <% } %>
+                    </div>
+                  </div>
+
+                  <a 
+                    href="/download/<%= link.id %>" 
+                    target="_blank" 
+                    data-url="/download/<%= link.id %>"
+                    class="server-dl-link w-full sm:w-auto bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs py-2.5 px-6 rounded-lg shadow-md transition flex items-center justify-center gap-2 hover:shadow-blue-500/30"
+                  >
+                    <i class="fa-solid fa-download"></i> Unduh Sekarang
+                  </a>
+                </div>
+              <% }) %>
+            <% } else { %>
+              <div class="p-6 text-center text-xs text-slate-400 bg-slate-900/60 rounded-xl border border-slate-800">
+                Link unduhan sedang diperbarui oleh administrator.
+              </div>
+            <% } %>
+
+            <!-- Report Broken Link Row -->
+            <div class="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs">
+              <button type="button" onclick="openReportModal()" class="text-rose-400 hover:text-rose-300 font-semibold flex items-center gap-1.5 transition">
+                <i class="fa-solid fa-triangle-exclamation"></i> Link limit atau mati? Laporkan ke Admin
+              </button>
+              <span class="text-slate-500 text-[11px]"><i class="fa-solid fa-shield-halved mr-1 text-emerald-400"></i>Mirror diverifikasi aman</span>
+            </div>
+          </div>
+
+          <!-- Installation Guide -->
+          <% if (post.install_guide) { %>
+            <div class="bg-[#0f172a] border border-slate-800 rounded-xl p-5 mb-8">
+              <h3 class="text-sm font-bold text-amber-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+                <i class="fa-solid fa-list-check"></i> Petunjuk Cara Instalasi (Langkah Demi Langkah)
+              </h3>
+              <div class="article-content text-xs sm:text-sm text-slate-300">
+                <%- post.install_guide %>
+              </div>
+              <div class="mt-4 p-3 bg-rose-950/40 border border-rose-800/60 rounded-lg text-xs text-rose-300 flex items-start gap-2">
+                <i class="fa-solid fa-triangle-exclamation text-rose-400 text-sm mt-0.5"></i>
+                <div>
+                  <strong>Penting:</strong> Matikan sementara Windows Defender / Real-time Protection sebelum mengekstrak file patch/crack agar file aktivator tidak dihapus otomatis oleh sistem Windows.
+                </div>
+              </div>
+            </div>
+          <% } %>
+
+          <!-- TROUBLESHOOTING & COMMON ERROR FIXES SECTION -->
+          <div class="bg-[#0f172a] border border-slate-800 rounded-xl p-5">
+            <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-800">
+              <h3 class="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                <i class="fa-solid fa-wrench text-amber-400"></i> Bantuan & Solusi Error Umum Saat Instalasi
+              </h3>
+              <span class="text-[10px] text-slate-400 bg-slate-800 px-2 py-0.5 rounded border border-slate-700">Troubleshooting</span>
+            </div>
+
+            <div class="space-y-2.5 mb-5">
+              <!-- Accordion 1: ISDone.dll / Unarc.dll -->
+              <details class="group bg-[#151f32] border border-slate-800 rounded-lg p-3.5 cursor-pointer">
+                <summary class="text-xs font-bold text-white flex items-center justify-between list-none">
+                  <span class="flex items-center gap-2">
+                    <i class="fa-solid fa-circle-exclamation text-rose-400"></i> Error "ISDone.dll" atau "Unarc.dll error code -11 / -1 / -7"
+                  </span>
+                  <i class="fa-solid fa-chevron-down text-xs text-slate-400 group-open:rotate-180 transition-transform"></i>
+                </summary>
+                <div class="pt-3 text-xs text-slate-300 leading-relaxed space-y-1.5 border-t border-slate-800 mt-2.5">
+                  <p><strong>Penyebab:</strong> Antivirus / Windows Defender memblokir dekompresi file atau ruang drive C: hampir penuh.</p>
+                  <p><strong>Solusi Praktis:</strong></p>
+                  <ol class="list-decimal pl-4 space-y-1 text-slate-300">
+                    <li>Matikan sementara Real-time Protection di Windows Defender sebelum mengekstrak.</li>
+                    <li>Pastikan sisa ruang kosong drive C: dan drive instalasi minimal 15 GB.</li>
+                    <li>Install seluruh paket <em>Visual C++ Redistributable All-in-One</em> (tombol unduh di bawah).</li>
+                    <li>Klik kanan file setup.exe -> Properties -> Compatibility -> Centang <em>Run as Administrator</em>.</li>
+                  </ol>
+                </div>
+              </details>
+
+              <!-- Accordion 2: VCRUNTIME140.dll / MSVCP140.dll -->
+              <details class="group bg-[#151f32] border border-slate-800 rounded-lg p-3.5 cursor-pointer">
+                <summary class="text-xs font-bold text-white flex items-center justify-between list-none">
+                  <span class="flex items-center gap-2">
+                    <i class="fa-solid fa-circle-exclamation text-amber-400"></i> Error "VCRUNTIME140.dll" atau "MSVCP140.dll is missing"
+                  </span>
+                  <i class="fa-solid fa-chevron-down text-xs text-slate-400 group-open:rotate-180 transition-transform"></i>
+                </summary>
+                <div class="pt-3 text-xs text-slate-300 leading-relaxed space-y-1.5 border-t border-slate-800 mt-2.5">
+                  <p><strong>Penyebab:</strong> Windows Anda belum terinstal pustaka library Microsoft Visual C++ runtime yang dibutuhkan oleh aplikasi.</p>
+                  <p><strong>Solusi:</strong> Unduh dan pasang <strong>Visual C++ 2015-2022 (x64)</strong> melalui tombol di bawah, kemudian restart komputer Anda.</p>
+                </div>
+              </details>
+
+              <!-- Accordion 3: Antivirus False Positive -->
+              <details class="group bg-[#151f32] border border-slate-800 rounded-lg p-3.5 cursor-pointer">
+                <summary class="text-xs font-bold text-white flex items-center justify-between list-none">
+                  <span class="flex items-center gap-2">
+                    <i class="fa-solid fa-shield-halved text-emerald-400"></i> File Crack / Patch Dihapus Otomatis oleh Windows Defender
+                  </span>
+                  <i class="fa-solid fa-chevron-down text-xs text-slate-400 group-open:rotate-180 transition-transform"></i>
+                </summary>
+                <div class="pt-3 text-xs text-slate-300 leading-relaxed space-y-1.5 border-t border-slate-800 mt-2.5">
+                  <p>Software aktivator sering kali dianggap <em>False-Positive</em> oleh antivirus karena memodifikasi kode registrasi software komersial.</p>
+                  <p><strong>Cara Tambahkan Pengecualian (Exclusion) di Windows Defender:</strong></p>
+                  <ol class="list-decimal pl-4 space-y-1 text-slate-300">
+                    <li>Buka menu <strong>Windows Security</strong> -> pilih <strong>Virus & threat protection</strong>.</li>
+                    <li>Klik <strong>Manage settings</strong> di bawah <em>Virus & threat protection settings</em>.</li>
+                    <li>Gulir ke bawah ke bagian <strong>Exclusions</strong> -> klik <em>Add or remove exclusions</em>.</li>
+                    <li>Pilih <em>Add an exclusion</em> -> pilih <strong>Folder</strong> -> pilih folder tempat file software Anda diekstrak.</li>
+                  </ol>
+                </div>
+              </details>
+            </div>
+
+            <!-- Essential Runtime Downloads Grid -->
+            <div class="bg-[#151f32] border border-slate-800 rounded-lg p-3.5">
+              <div class="text-[11px] font-bold text-slate-300 uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
+                <i class="fa-solid fa-toolbox text-blue-400"></i> Paket Runtime Wajib Windows:
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 text-xs">
+                <a href="https://aka.ms/vs/17/release/vc_redist.x64.exe" target="_blank" class="bg-[#121927] hover:bg-blue-600 hover:text-white border border-slate-700/80 p-2.5 rounded-lg transition group flex flex-col justify-between">
+                  <div class="font-bold text-white group-hover:text-white flex items-center justify-between">
+                    <span>Visual C++ 2015-2022</span>
+                    <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
+                  </div>
+                  <div class="text-[10px] text-slate-400 group-hover:text-blue-100 mt-1">Official Microsoft x64</div>
+                </a>
+
+                <a href="https://www.microsoft.com/en-us/download/details.aspx?id=35" target="_blank" class="bg-[#121927] hover:bg-blue-600 hover:text-white border border-slate-700/80 p-2.5 rounded-lg transition group flex flex-col justify-between">
+                  <div class="font-bold text-white group-hover:text-white flex items-center justify-between">
+                    <span>DirectX End-User</span>
+                    <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
+                  </div>
+                  <div class="text-[10px] text-slate-400 group-hover:text-blue-100 mt-1">DirectX 9 / 10 / 11 Setup</div>
+                </a>
+
+                <a href="https://dotnet.microsoft.com/en-us/download/dotnet/8.0" target="_blank" class="bg-[#121927] hover:bg-blue-600 hover:text-white border border-slate-700/80 p-2.5 rounded-lg transition group flex flex-col justify-between">
+                  <div class="font-bold text-white group-hover:text-white flex items-center justify-between">
+                    <span>.NET Desktop 8.0</span>
+                    <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
+                  </div>
+                  <div class="text-[10px] text-slate-400 group-hover:text-blue-100 mt-1">Framework Microsoft</div>
+                </a>
+
+                <a href="https://www.rarlab.com/download.htm" target="_blank" class="bg-[#121927] hover:bg-blue-600 hover:text-white border border-slate-700/80 p-2.5 rounded-lg transition group flex flex-col justify-between">
+                  <div class="font-bold text-white group-hover:text-white flex items-center justify-between">
+                    <span>WinRAR v7.01 Final</span>
+                    <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
+                  </div>
+                  <div class="text-[10px] text-slate-400 group-hover:text-blue-100 mt-1">Ekstraktor Arsip x64</div>
+                </a>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Social Share Bar -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-4 border-t border-slate-800 text-xs">
+          <span class="text-slate-400 font-semibold">Bagikan software ini ke teman:</span>
+          <div class="flex items-center gap-2">
+            <a href="https://api.whatsapp.com/send?text=Download%20<%= encodeURIComponent(post.title) %>" target="_blank" class="px-3 py-1.5 rounded-lg bg-emerald-600/20 text-emerald-400 hover:bg-emerald-600 hover:text-white transition flex items-center gap-1.5 font-bold">
+              <i class="fa-brands fa-whatsapp text-sm"></i> WhatsApp
+            </a>
+            <a href="https://t.me/share/url?url=https://khanza.net/software/<%= post.slug %>&text=Download%20<%= encodeURIComponent(post.title) %>" target="_blank" class="px-3 py-1.5 rounded-lg bg-sky-600/20 text-sky-400 hover:bg-sky-600 hover:text-white transition flex items-center gap-1.5 font-bold">
+              <i class="fa-brands fa-telegram text-sm"></i> Telegram
+            </a>
+            <a href="https://www.facebook.com/sharer/sharer.php?u=https://khanza.net/software/<%= post.slug %>" target="_blank" class="px-3 py-1.5 rounded-lg bg-blue-600/20 text-blue-400 hover:bg-blue-600 hover:text-white transition flex items-center gap-1.5 font-bold">
+              <i class="fa-brands fa-facebook text-sm"></i> Facebook
+            </a>
+          </div>
+        </div>
+
+      </article>
+
+      <!-- Related Posts Section -->
+      <% if (relatedPosts && relatedPosts.length > 0) { %>
+        <section class="mb-8">
+          <h3 class="text-base font-bold text-white uppercase tracking-wider mb-4 flex items-center gap-2">
+            <i class="fa-solid fa-arrows-split-up-and-left text-blue-400"></i> Software Terkait di Kategori Ini
+          </h3>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <% relatedPosts.forEach(rp => { %>
+              <a href="/software/<%= rp.slug %>" class="software-card rounded-xl p-3 flex flex-col group">
+                <img src="<%= rp.thumbnail %>" alt="<%= rp.title %>" class="w-full h-24 object-cover rounded-lg mb-2" onerror="this.src='https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=300&auto=format&fit=crop&q=80'">
+                <h4 class="text-xs font-semibold text-white group-hover:text-blue-400 line-clamp-2 transition mb-1">
+                  <%= rp.title %>
+                </h4>
+                <div class="mt-auto text-[10px] text-slate-400">
+                  <%= rp.file_size || '' %>
+                </div>
+              </a>
+            <% }) %>
+          </div>
+        </section>
+      <% } %>
+
+      <!-- Comments & Discussion Section -->
+      <section id="comments" class="bg-[#151f32] border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-xl">
+        <h3 class="text-base font-bold text-white uppercase tracking-wider mb-6 flex items-center justify-between border-b border-slate-800 pb-4">
+          <span class="flex items-center gap-2">
+            <i class="fa-solid fa-comments text-blue-400"></i> Komentar & Tanya Jawab (<%= comments.length %>)
+          </span>
+          <span class="text-xs text-slate-400 font-normal">Laporkan jika link mati</span>
+        </h3>
+
+        <% if (typeof msg !== 'undefined' && msg) { %>
+          <div class="mb-6 p-4 rounded-xl text-xs font-semibold <%= msg.includes('berhasil') ? 'bg-emerald-950/60 border border-emerald-800 text-emerald-300' : 'bg-rose-950/60 border border-rose-800 text-rose-300' %>">
+            <%= msg %>
+          </div>
+        <% } %>
+
+        <!-- Submit Comment Form -->
+        <form action="/software/<%= post.slug %>/comment" method="POST" class="mb-8 bg-[#121927] border border-slate-800 rounded-xl p-5 space-y-4">
+          <h4 class="text-xs font-bold text-white uppercase">Tinggalkan Komentar:</h4>
+          
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs text-slate-400 mb-1">Nama Lengkap / Panggilan *</label>
+              <input type="text" name="author_name" required placeholder="Contoh: Budi Santoso" class="w-full bg-[#151f32] border border-slate-700 rounded-lg px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500">
+            </div>
+            <div>
+              <label class="block text-xs text-slate-400 mb-1">Email (Opsional, tidak dipublikasikan)</label>
+              <input type="email" name="author_email" placeholder="budi@example.com" class="w-full bg-[#151f32] border border-slate-700 rounded-lg px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500">
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">Pesan / Ulasan Anda *</label>
+            <textarea name="comment_text" rows="3" required placeholder="Tuliskan pengalaman instalasi atau pertanyaan jika mengalami kendala..." class="w-full bg-[#151f32] border border-slate-700 rounded-lg px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"></textarea>
+          </div>
+
+          <button type="submit" class="bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs py-2 px-5 rounded-lg transition shadow-md flex items-center gap-2">
+            <i class="fa-solid fa-paper-plane text-xs"></i> Kirim Komentar
+          </button>
+        </form>
+
+        <!-- Approved Comments List -->
+        <div class="space-y-4">
+          <% if (comments && comments.length > 0) { %>
+            <% comments.forEach(c => { %>
+              <div class="bg-[#121927] border border-slate-800/80 rounded-xl p-4">
+                <div class="flex items-center justify-between mb-2">
+                  <div class="flex items-center gap-2">
+                    <div class="w-7 h-7 rounded-full bg-blue-600/30 text-blue-400 border border-blue-500/40 flex items-center justify-center font-bold text-xs uppercase">
+                      <%= c.author_name.charAt(0) %>
+                    </div>
+                    <span class="text-xs font-bold text-white"><%= c.author_name %></span>
+                  </div>
+                  <span class="text-[11px] text-slate-500"><%= formatDate(c.created_at) %></span>
+                </div>
+                <p class="text-xs text-slate-300 leading-relaxed pl-9">
+                  <%= c.comment_text %>
+                </p>
+              </div>
+            <% }) %>
+          <% } else { %>
+            <p class="text-xs text-slate-500 text-center py-4">Belum ada komentar untuk software ini. Jadilah yang pertama berkomentar!</p>
+          <% } %>
+        </div>
+
+      </section>
+
+    </div>
+
+    <!-- Right Column: Sidebar (4 cols) -->
+    <div class="lg:col-span-4">
+      <%- include('partials/sidebar') %>
+    </div>
+
+  </div>
+
+</main>
+
+<!-- Broken Link Report Modal -->
+<div id="reportModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+  <div class="bg-[#151f32] border border-slate-800 rounded-2xl w-full max-w-md p-6 shadow-2xl">
+    <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-800">
+      <h3 class="text-sm font-bold text-white flex items-center gap-2">
+        <i class="fa-solid fa-triangle-exclamation text-rose-500"></i> Laporkan Link Bermasalah
+      </h3>
+      <button type="button" onclick="closeReportModal()" class="text-slate-400 hover:text-white">
+        <i class="fa-solid fa-xmark text-lg"></i>
+      </button>
+    </div>
+
+    <form action="/report-broken-link" method="POST" class="space-y-4">
+      <input type="hidden" name="post_id" value="<%= post.id %>">
+
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1">Software</label>
+        <input type="text" readonly value="<%= post.title %>" class="w-full bg-[#121927] border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-400 cursor-not-allowed">
+      </div>
+
+      <% if (downloadLinks && downloadLinks.length > 0) { %>
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Pilih Server yang Bermasalah</label>
+          <select name="link_id" class="w-full bg-[#121927] border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500">
+            <% downloadLinks.forEach(l => { %>
+              <option value="<%= l.id %>"><%= l.server_name %> (<%= l.link_type %>)</option>
+            <% }) %>
+          </select>
+        </div>
+      <% } %>
+
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1">Nama Anda (Opsional)</label>
+        <input type="text" name="reporter_name" placeholder="Nama / Panggilan" class="w-full bg-[#121927] border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500">
+      </div>
+
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1">Kendala yang Dialami *</label>
+        <select name="reason" required class="w-full bg-[#121927] border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500">
+          <option value="Google Drive Quota Exceeded (Limit 24 Jam)">Google Drive Quota Exceeded (Limit 24 Jam)</option>
+          <option value="File Telah Dihapus / 404 Not Found">File Telah Dihapus / 404 Not Found</option>
+          <option value="File Rusak / Corrupt Saat Diekstrak">File Rusak / Corrupt Saat Diekstrak</option>
+          <option value="Password WinRAR Salah / Tidak Cocok">Password WinRAR Salah / Tidak Cocok</option>
+          <option value="Lainnya">Kendala Lainnya</option>
+        </select>
+      </div>
+
+      <div class="flex items-center justify-end gap-2 pt-2">
+        <button type="button" onclick="closeReportModal()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs py-2 px-4 rounded-xl">Batal</button>
+        <button type="submit" class="bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs py-2 px-5 rounded-xl shadow-md transition">Kirim Laporan</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  function openReportModal() {
+    document.getElementById('reportModal').classList.remove('hidden');
+  }
+  function closeReportModal() {
+    document.getElementById('reportModal').classList.add('hidden');
+  }
+
+  // Interactive Star Rating submission
+  function submitRating(score) {
+    const postId = '<%= post.id %>';
+    fetch(`/api/rate/${postId}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ rating: score })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        document.getElementById('ratingScoreText').textContent = data.newScore;
+        document.getElementById('ratingVotesText').textContent = data.newVotes;
+        
+        // Highlight stars
+        const stars = document.querySelectorAll('#starGroup i');
+        stars.forEach((s, idx) => {
+          if (idx < score) {
+            s.className = 'fa-solid fa-star text-amber-400';
+          } else {
+            s.className = 'fa-regular fa-star text-slate-600';
+          }
+        });
+
+        alert(`⭐ ${data.message} Nilai Anda: ${score} bintang.`);
+      }
+    })
+    .catch(err => console.error('Rating error:', err));
+  }
+</script>
+
+<%- include('partials/footer') %>

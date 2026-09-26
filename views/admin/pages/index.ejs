@@ -1,0 +1,53 @@
+<%- include('../layout-header') %>
+
+<div class="space-y-6">
+
+  <div>
+    <h1 class="text-xl font-black text-white">Manajemen Halaman Statis</h1>
+    <p class="text-xs text-slate-400 mt-0.5">Kelola halaman penting seperti DMCA Disclaimer, Panduan Cara Download, dll.</p>
+  </div>
+
+  <% if (typeof success !== 'undefined' && success) { %>
+    <div class="p-4 rounded-xl bg-emerald-950/70 border border-emerald-800 text-emerald-300 text-xs font-semibold flex items-center gap-2">
+      <i class="fa-solid fa-circle-check text-base"></i>
+      <%= success %>
+    </div>
+  <% } %>
+
+  <div class="bg-[#151f32] border border-slate-800 rounded-2xl overflow-hidden shadow-sm">
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-xs text-slate-300">
+        <thead class="bg-[#0f172a] text-slate-400 uppercase text-[10px] tracking-wider border-b border-slate-800">
+          <tr>
+            <th class="py-3.5 px-4">Judul Halaman</th>
+            <th class="py-3.5 px-4">URL Slug</th>
+            <th class="py-3.5 px-4">Terakhir Diperbarui</th>
+            <th class="py-3.5 px-4 text-right">Aksi</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-800/80">
+          <% if (pages && pages.length > 0) { %>
+            <% pages.forEach(pg => { %>
+              <tr class="hover:bg-slate-800/40 transition">
+                <td class="py-3.5 px-4 font-bold text-white"><%= pg.title %></td>
+                <td class="py-3.5 px-4 font-mono text-blue-400">/p/<%= pg.slug %></td>
+                <td class="py-3.5 px-4 text-slate-500 text-[11px]"><%= formatDate(pg.updated_at) %></td>
+                <td class="py-3.5 px-4 text-right space-x-2">
+                  <a href="/p/<%= pg.slug %>" target="_blank" class="p-1.5 text-slate-400 hover:text-white" title="Lihat Halaman">
+                    <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                  </a>
+                  <a href="/admin/pages/<%= pg.id %>/edit" class="p-1.5 text-blue-400 hover:text-blue-300 font-semibold" title="Edit Isi Halaman">
+                    <i class="fa-solid fa-pen-to-square"></i> Edit
+                  </a>
+                </td>
+              </tr>
+            <% }) %>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<%- include('../layout-footer') %>

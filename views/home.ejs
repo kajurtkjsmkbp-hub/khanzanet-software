@@ -1,0 +1,259 @@
+<%- include('partials/header') %>
+<%- include('partials/navbar') %>
+
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full">
+
+  <!-- Top Hero Featured Software Banner -->
+  <% if (typeof featuredPosts !== 'undefined' && featuredPosts.length > 0) { %>
+    <section class="mb-10">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg font-bold text-white uppercase tracking-wider flex items-center gap-2">
+          <i class="fa-solid fa-bolt text-yellow-400"></i> Rekomendasi Unggulan & Repack Populer
+        </h2>
+        <span class="text-xs text-blue-400 font-medium">Editor's Pick</span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <% featuredPosts.slice(0, 3).forEach((fp, idx) => { %>
+          <div class="relative group rounded-xl overflow-hidden bg-slate-900 border border-slate-800 hover:border-blue-500 shadow-xl transition-all duration-300 hover:-translate-y-1">
+            <div class="h-48 w-full overflow-hidden relative">
+              <img src="<%= fp.thumbnail %>" alt="<%= fp.title %>" class="w-full h-full object-cover group-hover:scale-110 transition duration-500" onerror="this.src='https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=600&auto=format&fit=crop&q=80'">
+              <div class="absolute inset-0 bg-gradient-to-t from-[#0f172a] via-[#0f172a]/60 to-transparent"></div>
+              
+              <!-- Badges -->
+              <div class="absolute top-3 left-3 flex items-center gap-2">
+                <span class="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-rose-600 text-white shadow">
+                  <i class="fa-solid fa-star text-[9px] mr-1"></i> FEATURED
+                </span>
+                <% if (fp.category_name) { %>
+                  <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-900/80 text-blue-300 border border-slate-700/80">
+                    <%= fp.category_name %>
+                  </span>
+                <% } %>
+              </div>
+
+              <% if (fp.version) { %>
+                <div class="absolute top-3 right-3">
+                  <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-600/90 text-white shadow backdrop-blur">
+                    <%= fp.version %>
+                  </span>
+                </div>
+              <% } %>
+            </div>
+
+            <div class="p-4 relative">
+              <h3 class="text-sm font-bold text-white line-clamp-2 group-hover:text-blue-400 transition mb-2">
+                <a href="/software/<%= fp.slug %>">
+                  <%= fp.title %>
+                </a>
+              </h3>
+              <p class="text-xs text-slate-400 line-clamp-2 mb-4">
+                <%= fp.excerpt || 'Klik untuk melihat detail fitur lengkap, system requirement, dan link download kecepatan tinggi.' %>
+              </p>
+
+              <div class="flex items-center justify-between pt-3 border-t border-slate-800 text-[11px] text-slate-400">
+                <span class="flex items-center gap-1">
+                  <i class="fa-solid fa-hard-drive text-blue-400"></i> <%= fp.file_size || 'Full Size' %>
+                </span>
+                <a href="/software/<%= fp.slug %>" class="inline-flex items-center gap-1.5 text-xs font-bold text-blue-400 group-hover:text-blue-300">
+                  Unduh <i class="fa-solid fa-arrow-right text-[10px] group-hover:translate-x-1 transition-transform"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+    </section>
+  <% } %>
+
+  <!-- Main Content Layout (Grid + Sidebar) -->
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+    
+    <!-- Left Column: Software Grid (8 cols) -->
+    <div class="lg:col-span-8">
+      
+      <!-- Section Header -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 mb-6 border-b border-slate-800 gap-3">
+        <div>
+          <h1 class="text-xl font-black text-white flex items-center gap-2">
+            <i class="fa-solid fa-layer-group text-blue-500"></i> Software & Game Terbaru
+          </h1>
+          <p class="text-xs text-slate-400 mt-0.5">
+            Daftar software terupdate, patch terkini, dan repack game PC teruji aman.
+          </p>
+        </div>
+        <div class="text-xs text-slate-400">
+          Menampilkan <span class="text-white font-bold"><%= posts.length %></span> dari <span class="text-white font-bold"><%= totalCount %></span> software
+        </div>
+      </div>
+
+      <!-- Quick Tag & Platform Filter Chips -->
+      <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-3 mb-6 text-xs">
+        <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider shrink-0 mr-1">Filter:</span>
+        <a href="/" class="px-3 py-1 rounded-full font-bold transition shrink-0 <%= (!selectedTag && !selectedOs && !selectedArch) ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700' %>">
+          🔥 Semua
+        </a>
+        <a href="/?tag=Pre-Activated" class="px-3 py-1 rounded-full font-semibold transition shrink-0 <%= selectedTag === 'Pre-Activated' ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700' %>">
+          ⚡ Pre-Activated
+        </a>
+        <a href="/?tag=Portable" class="px-3 py-1 rounded-full font-semibold transition shrink-0 <%= selectedTag === 'Portable' ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700' %>">
+          🎒 Portable
+        </a>
+        <a href="/?tag=Full-DLC" class="px-3 py-1 rounded-full font-semibold transition shrink-0 <%= selectedTag === 'Full-DLC' ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700' %>">
+          🎮 Full-DLC
+        </a>
+        <a href="/?tag=Repack" class="px-3 py-1 rounded-full font-semibold transition shrink-0 <%= selectedTag === 'Repack' ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700' %>">
+          📦 Repack
+        </a>
+        <a href="/?os=Windows" class="px-3 py-1 rounded-full font-semibold transition shrink-0 <%= selectedOs === 'Windows' ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700' %>">
+          <i class="fa-brands fa-windows text-[11px] mr-1"></i> Windows
+        </a>
+        <a href="/?os=macOS" class="px-3 py-1 rounded-full font-semibold transition shrink-0 <%= selectedOs === 'macOS' ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700' %>">
+          <i class="fa-brands fa-apple text-[11px] mr-1"></i> macOS
+        </a>
+        <a href="/?arch=64-bit" class="px-3 py-1 rounded-full font-semibold transition shrink-0 <%= selectedArch === '64-bit' ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700' %>">
+          64-bit
+        </a>
+      </div>
+
+      <!-- Software Cards Grid -->
+      <% if (posts && posts.length > 0) { %>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-8">
+          <% posts.forEach(post => { %>
+            <article class="software-card rounded-xl overflow-hidden flex flex-col group relative">
+              <!-- Thumbnail Cover -->
+              <div class="h-44 w-full overflow-hidden relative bg-slate-950">
+                <a href="/software/<%= post.slug %>" class="block w-full h-full">
+                  <img src="<%= post.thumbnail %>" alt="<%= post.title %>" class="thumb-img w-full h-full object-cover" onerror="this.src='https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=600&auto=format&fit=crop&q=80'">
+                </a>
+                
+                <!-- Category Badge -->
+                <div class="absolute top-2.5 left-2.5 z-10">
+                  <a href="/category/<%= post.category_slug %>" class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold text-white shadow-md backdrop-blur-sm" style="background-color: <%= post.category_color || '#3b82f6' %>cc">
+                    <%= post.category_name || 'Software' %>
+                  </a>
+                </div>
+
+                <!-- Bookmark Button & Version Badge -->
+                <div class="absolute top-2.5 right-2.5 z-10 flex items-center gap-1.5">
+                  <% if (post.version) { %>
+                    <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-slate-900/90 text-sky-300 border border-slate-700/80 shadow">
+                      <%= post.version %>
+                    </span>
+                  <% } %>
+                  <button 
+                    type="button"
+                    data-bookmark-id="<%= post.id %>"
+                    onclick="event.preventDefault(); toggleBookmark({ id: <%= post.id %>, title: '<%= post.title.replace(/'/g, "\\'") %>', slug: '<%= post.slug %>', thumbnail: '<%= post.thumbnail %>', version: '<%= post.version || '' %>' }, this)" 
+                    class="w-7 h-7 rounded-full bg-slate-900/90 hover:bg-slate-800 text-slate-300 hover:text-rose-500 border border-slate-700 transition flex items-center justify-center shadow" 
+                    title="Simpan ke Favorit"
+                  >
+                    <i class="fa-regular fa-heart text-xs"></i>
+                  </button>
+                </div>
+
+                <!-- Recently Updated Badge -->
+                <% 
+                  const isRecentlyUpdated = post.updated_at && (Date.now() - new Date(post.updated_at).getTime()) < (7 * 24 * 60 * 60 * 1000); 
+                %>
+                <% if (isRecentlyUpdated) { %>
+                  <span class="absolute bottom-2.5 right-2.5 px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-orange-600 text-white shadow-lg animate-pulse z-10">
+                    🔥 Update Baru
+                  </span>
+                <% } %>
+              </div>
+
+              <!-- Content Body -->
+              <div class="p-4 flex-1 flex flex-col justify-between">
+                <div>
+                  <% if (post.tags) { %>
+                    <div class="flex flex-wrap gap-1 mb-2">
+                      <% post.tags.split(',').forEach(tag => { %>
+                        <a href="/?tag=<%= tag.trim() %>" class="text-[9px] font-semibold px-1.5 py-0.5 rounded bg-slate-800/80 hover:bg-blue-600 hover:text-white text-slate-300 border border-slate-700/60 transition">
+                          #<%= tag.trim() %>
+                        </a>
+                      <% }) %>
+                    </div>
+                  <% } %>
+
+                  <h2 class="text-sm font-bold text-white group-hover:text-blue-400 transition-colors line-clamp-2 mb-2 leading-snug">
+                    <a href="/software/<%= post.slug %>">
+                      <%= post.title %>
+                    </a>
+                  </h2>
+                  <p class="text-xs text-slate-400 line-clamp-2 mb-4 leading-relaxed">
+                    <%= post.excerpt || 'Klik untuk mengunduh software versi lengkap tanpa virus beserta tutorial instalasi mudah.' %>
+                  </p>
+                </div>
+
+                <!-- Footer Specs & Button -->
+                <div class="pt-3 border-t border-slate-800/80">
+                  <div class="flex items-center justify-between text-[11px] text-slate-400 mb-3">
+                    <span class="flex items-center gap-1 truncate max-w-[120px]">
+                      <i class="fa-solid fa-hdd text-blue-400"></i> <%= post.file_size || 'N/A' %>
+                    </span>
+                    <span class="flex items-center gap-1">
+                      <i class="fa-solid fa-calendar text-slate-500"></i> <%= formatDate(post.created_at) %>
+                    </span>
+                  </div>
+
+                  <a href="/software/<%= post.slug %>" class="w-full bg-slate-800 hover:bg-blue-600 text-slate-200 hover:text-white text-xs font-bold py-2 px-3 rounded-lg text-center transition flex items-center justify-center gap-2 group-hover:bg-blue-600 group-hover:text-white">
+                    <i class="fa-solid fa-download text-xs"></i> Detail & Unduh
+                  </a>
+                </div>
+              </div>
+            </article>
+          <% }) %>
+        </div>
+
+        <!-- Pagination -->
+        <% if (totalPages > 1) { %>
+          <div class="flex items-center justify-center space-x-2 py-4">
+            <% if (currentPage > 1) { %>
+              <a href="/?page=<%= currentPage - 1 %>" class="px-3.5 py-2 text-xs font-semibold rounded-lg bg-slate-800 text-slate-200 hover:bg-slate-700 transition">
+                <i class="fa-solid fa-chevron-left mr-1"></i> Prev
+              </a>
+            <% } %>
+
+            <% for(let p = 1; p <= totalPages; p++) { %>
+              <% if (p === currentPage) { %>
+                <span class="px-3.5 py-2 text-xs font-bold rounded-lg bg-blue-600 text-white shadow-md">
+                  <%= p %>
+                </span>
+              <% } else if (p === 1 || p === totalPages || (p >= currentPage - 2 && p <= currentPage + 2)) { %>
+                <a href="/?page=<%= p %>" class="px-3.5 py-2 text-xs font-semibold rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 transition">
+                  <%= p %>
+                </a>
+              <% } else if (p === currentPage - 3 || p === currentPage + 3) { %>
+                <span class="px-2 text-slate-500">...</span>
+              <% } %>
+            <% } %>
+
+            <% if (currentPage < totalPages) { %>
+              <a href="/?page=<%= currentPage + 1 %>" class="px-3.5 py-2 text-xs font-semibold rounded-lg bg-slate-800 text-slate-200 hover:bg-slate-700 transition">
+                Next <i class="fa-solid fa-chevron-right ml-1"></i>
+              </a>
+            <% } %>
+          </div>
+        <% } %>
+
+      <% } else { %>
+        <div class="bg-slate-900 border border-slate-800 rounded-xl p-12 text-center">
+          <i class="fa-solid fa-box-open text-4xl text-slate-600 mb-3"></i>
+          <h3 class="text-base font-bold text-white mb-1">Belum Ada Software</h3>
+          <p class="text-xs text-slate-400">Silakan tambahkan software pertama melalui menu CMS Admin.</p>
+        </div>
+      <% } %>
+
+    </div>
+
+    <!-- Right Column: Sidebar (4 cols) -->
+    <div class="lg:col-span-4">
+      <%- include('partials/sidebar') %>
+    </div>
+
+  </div>
+
+</main>
+
+<%- include('partials/footer') %>

@@ -1,0 +1,157 @@
+/* Custom styles for Khanza.NET Portal */
+:root {
+  --primary: #2563eb;
+  --primary-hover: #1d4ed8;
+  --secondary: #0ea5e9;
+  --accent: #f59e0b;
+  --dark-bg: #0b1120;
+  --card-bg: #1e293b;
+  --card-border: #334155;
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  background-color: var(--dark-bg);
+  color: var(--text-main);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #0f172a;
+}
+::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}
+
+/* Card hover glow effects */
+.software-card {
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  background-color: #151f32;
+  border: 1px solid #1e2d48;
+}
+.software-card:hover {
+  transform: translateY(-4px);
+  border-color: #3b82f6;
+  box-shadow: 0 12px 24px -10px rgba(37, 99, 235, 0.35);
+}
+
+.software-card .thumb-img {
+  transition: transform 0.4s ease;
+}
+.software-card:hover .thumb-img {
+  transform: scale(1.05);
+}
+
+/* Badge styling */
+.badge-version {
+  background: rgba(37, 99, 235, 0.15);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  color: #60a5fa;
+}
+
+/* Password Box Highlight */
+.password-box {
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.9));
+  border: 1px dashed #3b82f6;
+}
+
+/* Download Link Row */
+.download-row {
+  transition: all 0.2s ease;
+}
+.download-row:hover {
+  background: rgba(59, 130, 246, 0.1);
+  border-color: #3b82f6;
+}
+
+/* Typography in article body */
+.article-content {
+  color: #cbd5e1;
+  line-height: 1.8;
+  font-size: 1.05rem;
+}
+.article-content h2, .article-content h3, .article-content h4 {
+  color: #f8fafc;
+  font-weight: 700;
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+}
+.article-content h2 { font-size: 1.5rem; border-bottom: 2px solid #1e293b; padding-bottom: 0.5rem; }
+.article-content h3 { font-size: 1.25rem; }
+.article-content p {
+  margin-bottom: 1rem;
+}
+.article-content ul, .article-content ol {
+  margin-bottom: 1.25rem;
+  padding-left: 1.5rem;
+}
+.article-content ul { list-style-type: disc; }
+.article-content ol { list-style-type: decimal; }
+.article-content li {
+  margin-bottom: 0.5rem;
+}
+.article-content code {
+  background: #0f172a;
+  color: #38bdf8;
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  font-size: 0.9em;
+  border: 1px solid #334155;
+}
+
+/* Search Dropdown Suggestion */
+.search-results-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 0.5rem;
+  margin-top: 0.25rem;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+  max-height: 400px;
+  overflow-y: auto;
+}
+.search-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-bottom: 1px solid #334155;
+  transition: background 0.15s ease;
+  text-decoration: none;
+  color: #e2e8f0;
+}
+.search-item:last-child {
+  border-bottom: none;
+}
+.search-item:hover {
+  background: #2563eb;
+  color: #ffffff;
+}
+
+/* Floating copy tooltip animation */
+@keyframes fadeInOut {
+  0% { opacity: 0; transform: translateY(4px); }
+  20% { opacity: 1; transform: translateY(0); }
+  80% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-4px); }
+}
+.copied-badge {
+  animation: fadeInOut 2s ease forwards;
+}

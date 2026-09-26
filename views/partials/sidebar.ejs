@@ -1,0 +1,113 @@
+<aside class="space-y-6">
+  
+  <!-- Join Community Card -->
+  <div class="bg-gradient-to-br from-blue-900/60 to-indigo-950/80 border border-blue-700/40 rounded-xl p-5 shadow-lg relative overflow-hidden">
+    <div class="absolute -right-4 -bottom-4 text-blue-500/10 text-8xl">
+      <i class="fa-brands fa-telegram"></i>
+    </div>
+    <div class="relative z-10">
+      <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-blue-500/20 text-blue-300 border border-blue-500/30 mb-2">
+        <i class="fa-solid fa-bell text-xs"></i> OFFICIAL CHANNEL
+      </div>
+      <h3 class="text-base font-bold text-white mb-1">Gabung Komunitas Kami!</h3>
+      <p class="text-xs text-slate-300 mb-4 leading-relaxed">
+        Dapatkan notifikasi update software terbaru, request game, dan solusi error instalasi di grup Telegram resmi kami.
+      </p>
+      <div class="flex flex-col gap-2">
+        <% if (settings.telegram_url) { %>
+          <a href="<%= settings.telegram_url %>" target="_blank" class="w-full bg-sky-500 hover:bg-sky-400 text-white text-xs font-bold py-2 px-3 rounded-lg text-center transition flex items-center justify-center gap-2 shadow-md shadow-sky-500/20">
+            <i class="fa-brands fa-telegram text-sm"></i> Join Telegram Channel
+          </a>
+        <% } %>
+        <% if (settings.discord_url) { %>
+          <a href="<%= settings.discord_url %>" target="_blank" class="w-full bg-[#5865F2] hover:bg-[#4752c4] text-white text-xs font-bold py-2 px-3 rounded-lg text-center transition flex items-center justify-center gap-2">
+            <i class="fa-brands fa-discord text-sm"></i> Join Server Discord
+          </a>
+        <% } %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Popular Software Widget -->
+  <div class="bg-[#151f32] border border-slate-800 rounded-xl p-5 shadow-sm">
+    <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-800">
+      <h3 class="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+        <i class="fa-solid fa-fire text-amber-500"></i> Paling Populer
+      </h3>
+      <span class="text-[11px] text-slate-400">All Time</span>
+    </div>
+    <div class="space-y-3">
+      <% if (typeof popularPosts !== 'undefined' && popularPosts.length > 0) { %>
+        <% popularPosts.forEach((p, idx) => { %>
+          <a href="/software/<%= p.slug %>" class="flex items-center gap-3 group p-1.5 rounded-lg hover:bg-slate-800/60 transition">
+            <div class="relative shrink-0">
+              <img src="<%= p.thumbnail %>" alt="<%= p.title %>" class="w-12 h-12 object-cover rounded-lg border border-slate-700/80 group-hover:border-blue-500 transition" onerror="this.src='https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=200&auto=format&fit=crop&q=80'">
+              <span class="absolute -top-1.5 -left-1.5 w-5 h-5 rounded-full <%= idx === 0 ? 'bg-amber-500 text-slate-900 font-black' : (idx === 1 ? 'bg-slate-300 text-slate-900 font-bold' : (idx === 2 ? 'bg-amber-700 text-white font-bold' : 'bg-slate-700 text-slate-300 font-medium')) %> text-[10px] flex items-center justify-center shadow">
+                <%= idx + 1 %>
+              </span>
+            </div>
+            <div class="flex-1 min-w-0">
+              <h4 class="text-xs font-semibold text-slate-200 group-hover:text-blue-400 truncate transition">
+                <%= p.title %>
+              </h4>
+              <div class="flex items-center gap-3 text-[11px] text-slate-400 mt-1">
+                <span><i class="fa-solid fa-download text-xs text-blue-400 mr-1"></i><%= p.downloads_count || 0 %></span>
+                <span><i class="fa-solid fa-eye text-xs text-slate-500 mr-1"></i><%= p.views_count || 0 %></span>
+                <% if (p.file_size) { %>
+                  <span class="text-slate-500">• <%= p.file_size %></span>
+                <% } %>
+              </div>
+            </div>
+          </a>
+        <% }) %>
+      <% } else { %>
+        <p class="text-xs text-slate-400">Belum ada software populer.</p>
+      <% } %>
+    </div>
+  </div>
+
+  <!-- Categories Widget -->
+  <div class="bg-[#151f32] border border-slate-800 rounded-xl p-5 shadow-sm">
+    <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-800">
+      <h3 class="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+        <i class="fa-solid fa-layer-group text-blue-500"></i> Kategori Software
+      </h3>
+    </div>
+    <div class="space-y-1.5">
+      <% if (typeof navCategories !== 'undefined') { %>
+        <% navCategories.forEach(cat => { %>
+          <a href="/category/<%= cat.slug %>" class="flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition group">
+            <span class="flex items-center gap-2.5">
+              <i class="<%= cat.icon %> text-xs group-hover:scale-110 transition-transform" style="color: <%= cat.color || '#3b82f6' %>"></i>
+              <%= cat.name %>
+            </span>
+            <span class="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full border border-slate-700/60 group-hover:border-blue-500 group-hover:text-blue-400">
+              <%= cat.post_count || 0 %>
+            </span>
+          </a>
+        <% }) %>
+      <% } %>
+    </div>
+  </div>
+
+  <!-- Sidebar Sponsor Banner -->
+  <% if (typeof settings !== 'undefined' && settings.ad_sidebar && settings.ad_sidebar.trim()) { %>
+    <div class="bg-[#151f32] border border-slate-800 rounded-xl p-4 text-center overflow-hidden shadow-sm">
+      <div class="text-[9px] text-slate-500 uppercase tracking-widest font-semibold mb-2">Sponsor / Iklan</div>
+      <div class="flex justify-center items-center">
+        <%- settings.ad_sidebar %>
+      </div>
+    </div>
+  <% } %>
+
+  <!-- Information / Security Notice Box -->
+  <div class="bg-[#121927] border border-slate-800/80 rounded-xl p-4 text-xs text-slate-400">
+    <div class="flex items-center gap-2 text-white font-semibold mb-2">
+      <i class="fa-solid fa-shield-virus text-emerald-400 text-sm"></i> Jaminan Bebas Virus
+    </div>
+    <p class="text-[11px] leading-relaxed">
+      Semua software dan game di <strong><%= settings.site_name || 'Khanza.NET' %></strong> telah dipindai menggunakan VirusTotal dan Windows Defender sebelum diunggah. Dijamin 100% aman dan bersih.
+    </p>
+  </div>
+
+</aside>
