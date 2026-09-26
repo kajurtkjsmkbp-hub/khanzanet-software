@@ -322,4 +322,22 @@ npm start
 * File database SQLite berada di `data/database.sqlite`. Jika ingin mereset database, cukup hapus file tersebut dan jalankan `npm start`; `src/db.js` akan otomatis membuat ulang database bersih beserta seeder bawaan Khanza.NET.
 
 ---
+
+## 8. 🌐 Repository GitHub & Aturan Deployment Proxmox LXC
+* **GitHub Repository:** `https://github.com/kajurtkjsmkbp-hub/khanzanet-software`
+* **Branch Utama:** `master`
+* **Jaminan Keamanan Database (Tidak Tertimpa Saat Update Lokal):**
+  * `data/*.sqlite*` dan `public/uploads/*` strictly di-ignore di `.gitignore`.
+  * Saat developer update kode di lokal dan push ke GitHub, database server Proxmox **TIDAK AKAN PERNAH TERTEMPA** saat `git pull`.
+  * Auto-migration `upgradeSchema()` di `src/db.js` otomatis menambahkan kolom baru jika ada update skema tanpa menghapus data yang ada.
+* **Perintah Update di Proxmox LXC:**
+  ```bash
+  cd /var/www/khanzanet
+  git pull origin master
+  npm install --production
+  pm2 restart khanzanet
+  ```
+
+---
 *Dokumen ini dibuat otomatis dan dipelihara agar seluruh memori arsitektur Khanza.NET tersimpan abadi dan konsisten.*
+
